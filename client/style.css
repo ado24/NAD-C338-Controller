@@ -19,13 +19,18 @@ input[type="range"] {
 .text-controls {
     width: 35px;
 }
-
 .nad-control-group {
     display: flex;
     justify-content: space-between;
     padding-top: 10px;
 }
 
+
 .toggleNadControls {
     padding: 10px;
+}
+
+.trackArtImg {
+    width: 200px;
+    height: 200px;
 }

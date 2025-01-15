@@ -22,6 +22,7 @@ async function updateStatus() {
         document.getElementById('trackArtist').textContent = `Artist: ${status.getElementsByTagName('artist')[0].textContent || 'N/A'}`;
         document.getElementById('trackAlbum').textContent = `Album: ${status.getElementsByTagName('album')[0].textContent || 'N/A'}`;
         document.getElementById('trackArt').src = status.getElementsByTagName('image')[0].textContent || '';
+        document.getElementById('streamInfo').textContent = `Stream Info: ${status.getElementsByTagName('streamFormat')[0].textContent || 'N/A'}`;
         const volume = status.getElementsByTagName('volume')[0].textContent || '50';
         bluOSVolumeSlider.value = volume;
         bluOSVolumeText.value = volume;
