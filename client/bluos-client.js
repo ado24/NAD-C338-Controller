@@ -15,6 +15,7 @@ async function sendBluOSCommand(path) {
         console.error('Error sending BluOS command:', error);
     }
 }
+
 async function updateStatus() {
     const status = await sendBluOSCommand('Status');
     if (status) {
@@ -23,6 +24,15 @@ async function updateStatus() {
         document.getElementById('trackAlbum').textContent = `Album: ${status.getElementsByTagName('album')[0].textContent || 'N/A'}`;
         document.getElementById('trackArt').src = status.getElementsByTagName('image')[0].textContent || '';
         document.getElementById('streamInfo').textContent = `Stream Info: ${status.getElementsByTagName('streamFormat')[0].textContent || 'N/A'}`;
+
+        const quality = status.getElementsByTagName('quality')[0].textContent.toUpperCase() || '';
+        const qualityElement = document.getElementById('qualityType');
+        if (quality.includes('MQA')) {
+            qualityElement.innerHTML = 'MQA <br/><img style="width: 121.73px; height: 50px;" src="images/mqa-logo.png" alt="MQA Logo" />';
+        } else {
+            qualityElement.textContent = quality;
+        }
+
         const volume = status.getElementsByTagName('volume')[0].textContent || '50';
         bluOSVolumeSlider.value = volume;
         bluOSVolumeText.value = volume;
@@ -56,7 +66,6 @@ document.getElementById('toggleBluOsControls').addEventListener('click', () => {
     const bluOsControls = document.getElementById('bluOs-control-group');
     bluOsControls.style.display = bluOsControls.style.display === 'none' ? 'block' : 'none';
 });
-
 
 // Poll every 10 seconds
 setInterval(updateStatus, bluosPollingInterval);
