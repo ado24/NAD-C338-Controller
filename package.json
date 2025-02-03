@@ -1,0 +1,18 @@
+{
+  "name": "nad-c338-controller-app",
+  "version": "1.0.0",
+  "description": "Basic controller app for NAD C338 amplifier",
+  "workspaces": [
+    "client",
+    "server",
+    "client/https-proxy"
+  ],
+   "scripts": {
+     "client": "npm run client --workspace client",
+     "proxy": "npm run proxy --workspace client/https-proxy",
+     "start-server": "concurrently \"npm run client --workspace client\" \"npm run proxy --workspace client/https-proxy\""
+   },
+    "dependencies": {
+      "concurrently": "^9.1.2"
+    }
+}

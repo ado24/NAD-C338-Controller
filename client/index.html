@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAD C338 Control</title>
+    <link href="css/style.css" rel="stylesheet"/>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+</head>
+<body>
+    <h1>NAD C338 Control</h1>
+    <div>
+        <button id="toggleNadControls">Toggle NAD Controls</button>
+        <button id="darkModeToggle">Toggle Dark Mode</button>
+    </div>
+    <br/>
+    <div id="nad-control-group">
+        <div class="control-group" id="power-group">
+            <label for="powerOn">Power</label>
+            <button id="powerOn">On</button>
+            <button id="powerOff">Off</button><br/>
+            <input type="checkbox" id="powerToggle">
+        </div>
+        <div class="control-group" id="volume-group">
+            <label for="volume">Volume</label>
+            <input type="range" id="volume" min="-80" max="12" step="0.5">
+            <input type="text" id="volumeText" value="-20">
+            <span id="volumeValue">-20</span> dB
+        </div>
+        <div class="control-group" id="source-group">
+            <label for="source">Source</label>
+            <select id="source">
+                <option value="Stream">Stream</option>
+                <option value="Wireless">Wireless</option>
+                <option value="TV">TV</option>
+                <option value="Phono">Phono</option>
+                <option value="Coax1">Coax1</option>
+                <option value="Coax2">Coax2</option>
+                <option value="Opt1">Opt1</option>
+                <option value="Opt2">Opt2</option>
+            </select>
+        </div>
+        <div class="control-group" id="mute-group">
+            <label for="mute">Mute</label>
+            <button id="mute">Mute</button>
+            <button id="unmute">Unmute</button>
+        </div>
+        <div class="control-group" id="brightness-group">
+            <label for="brightness">Brightness</label>
+            <input type="range" id="brightness" min="0" max="3" step="1">
+            <input type="text" id="brightnessText" class="text-controls" value="0">
+            <span id="brightnessValue">2</span>
+        </div>
+        <div class="control-group">
+            <label for="bassToggle">Bass</label>
+            <button id="setBass"   class="bassButtons">Set Bass EQ</button>
+            <button id="unsetBass" class="bassButtons">Unset Bass EQ</button><br class="bassButtons"/>
+            <input type="checkbox" id="bassToggle">
+        </div>
+        <div class="control-group" id="auto-sense-group">
+            <label for="autoSenseToggle">Auto Sense</label>
+            <input type="checkbox" id="autoSenseToggle">
+        </div>
+        <div class="control-group" id="auto-standby-group">
+            <label for="autoStandbyToggle">Auto Standby</label>
+            <input type="checkbox" id="autoStandbyToggle">
+        </div>
+        <div class="control-group" id="timer-group">
+            <label for="on-timer">Turn On Timer (seconds):</label>
+            <input type="number" id="on-timer" min="0">
+            <button id="on-timer-button">Set On Timer</button>
+            <br>
+            <label for="off-timer">Turn Off Timer (seconds):</label>
+            <input type="number" id="off-timer" min="0">
+            <button id="off-timer-button">Set Off Timer</button>
+        </div>
+        <div class="control-group" id="ip-address-group">
+            <label for="ipAddress">IP Address</label>
+            <input type="text" id="ipAddress" value="10.0.0.251">
+            <button id="setIp">Set IP</button>
+        </div>
+        <div class="control-group" id="refresh-group">
+            <button id="refresh">Refresh</button>
+        </div>
+    </div>
+
+    <!-- BluOS Control -->
+    <h1>BluOS Control</h1>
+    <button id="toggleBluOsControls">Toggle BluOS Controls</button>
+    <div id="bluOs-control-group">
+        <div class="control-group" id="bluOS-play-group">
+            <label for="play">Play Controls</label>
+            <button id="play">Play</button>
+            <button id="pause">Pause</button>
+            <button id="skip">Skip</button>
+            <button id="back">Back</button>
+            <button id="stop">Stop</button>
+        </div>
+        <div class="control-group" id="bluOS-shuffle-group">
+            <label for="shuffleToggle">Shuffle</label>
+            <input type="checkbox" id="shuffleToggle">
+        </div>
+        <div class="control-group" id="bluOS-status-group">
+            <label for="getStatus">Status</label>
+            <button id="getStatus">Get Status</button>
+            <button id="getSyncStatus">Get Sync Status</button>
+        </div>
+        <div class="control-group" id="bluOS-volume-group">
+            <label for="bluOSVolume">Volume</label>
+            <input type="range" id="bluOSVolume" min="0" max="100" step="1">
+            <input type="text" id="bluOSVolumeText" value="50">
+            <span id="bluOSVolumeValue">50</span>
+        </div>
+        <div class="control-group" id="bluOS-reboot-group">
+            <label for="reboot">Reboot</label>
+            <button id="reboot">Reboot</button>
+        </div>
+
+        <div class="control-group" id="track-info-group">
+            <h2>Currently Playing</h2>
+            <img id="trackArt" class="trackArtImg" src="" alt="Track Art">
+            <p id="trackTitle">Title: N/A</p>
+            <p id="trackArtist">Artist: N/A</p>
+            <p id="trackAlbum">Album: N/A</p>
+            <p id="streamInfo">Stream Info: N/A</p>
+            <span>Quality: </span><span id="qualityType">N/A</span> <!-- New element for quality type -->
+        </div>
+        <div class="control-group" id="playlist-group">
+            <h2>Next 10 Tracks</h2>
+            <button id="togglePlaylist">Show Playlist</button>
+            <button id="refreshPlaylist">Refresh Playlist</button>
+            <div id="playlist" style="display: none;">
+                <ul id="playlistTracks"></ul>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="js/model/NAD-C338.js"></script>
+    <script type="module" src="js/client/nad-client.js"></script>
+    <script type="module" src="js/client/bluos-client.js"></script>
+</body>
+</html>

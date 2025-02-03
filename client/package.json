@@ -1,0 +1,22 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "js/client/nad-client.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest NADC338 NAD-C338.test.js --verbose --coverage",
+    "start": "npm run client",
+    "client": "npx http-server . -g -b -p 9900 -S -C certs/server.crt -K keys/server.key"
+  },
+  "private": true,
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "http-proxy": "^1.18.1",
+    "http-server": "^14.1.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

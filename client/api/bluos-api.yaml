@@ -1,0 +1,206 @@
+openapi: 3.1.0
+info:
+  title: BluOS Player API
+  version: 1.0.0
+  description: API for controlling and retrieving information from BluOS players.
+servers:
+  - url: https://{ip}:{port}
+    description: BluOS Player
+    variables:
+      ip:
+        default: 10.0.0.208
+      port:
+        default: 11000
+paths:
+  /Status:
+    get:
+      summary: Get the current status of the BluOS player
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  title1:
+                    type: string
+                  artist:
+                    type: string
+                  album:
+                    type: string
+                  image:
+                    type: string
+                  streamFormat:
+                    type: string
+                  quality:
+                    type: string
+                  volume:
+                    type: string
+  /Play:
+    post:
+      summary: Play the current track
+      responses:
+        '200':
+          description: Successful response
+  /Pause:
+    post:
+      summary: Pause the current track
+      responses:
+        '200':
+          description: Successful response
+  /Skip:
+    post:
+      summary: Skip to the next track
+      responses:
+        '200':
+          description: Successful response
+  /Back:
+    post:
+      summary: Go back to the previous track
+      responses:
+        '200':
+          description: Successful response
+  /Stop:
+    post:
+      summary: Stop the current track
+      responses:
+        '200':
+          description: Successful response
+  /Volume:
+    post:
+      summary: Set the volume level
+      parameters:
+        - name: level
+          in: query
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+      responses:
+        '200':
+          description: Successful response
+  /Playlist:
+    get:
+      summary: Get the playlist
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  playlist:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      modified:
+                        type: string
+                      length:
+                        type: string
+                      song:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            trackstationid:
+                              type: string
+                            songid:
+                              type: string
+                            id:
+                              type: string
+                            replayGain:
+                              type: string
+                            albumid:
+                              type: string
+                            service:
+                              type: string
+                            artistid:
+                              type: string
+                            title:
+                              type: string
+                            art:
+                              type: string
+                            alb:
+                              type: string
+                            fn:
+                              type: string
+                            quality:
+                              type: string
+  /reboot:
+    post:
+      summary: Reboot the BluOS player
+      responses:
+        '200':
+          description: Successful response
+components:
+  schemas:
+    Status:
+      type: object
+      properties:
+        title1:
+          type: string
+        artist:
+          type: string
+        album:
+          type: string
+        image:
+          type: string
+        streamFormat:
+          type: string
+        quality:
+          type: string
+        volume:
+          type: string
+    Playlist:
+      type: object
+      properties:
+        id:
+          type: string
+        modified:
+          type: string
+        length:
+          type: string
+        song:
+          type: array
+          items:
+            type: object
+            properties:
+              trackstationid:
+                type: string
+              songid:
+                type: string
+              id:
+                type: string
+              replayGain:
+                type: string
+              albumid:
+                type: string
+              service:
+                type: string
+              artistid:
+                type: string
+              title:
+                type: string
+              art:
+                type: string
+              alb:
+                type: string
+              fn:
+                type: string
+              quality:
+                type: string
