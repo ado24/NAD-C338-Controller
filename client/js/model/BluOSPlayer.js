@@ -1,23 +1,22 @@
-export class BluOSPlayer {
+import { AudioPlayer } from "./interface/AudioPlayer.js";
+
+export class BluOSPlayer extends AudioPlayer {
     constructor(ip, port = 11000, protocol = "https") {
-        this.ip = ip;
-        this.port = port;
+        super(ip, port, protocol);
         this.title = null;
         this.artist = null;
         this.album = null;
         this.image = null;
         this.streamFormat = null;
         this.quality = null;
-        this.volume = null;
         this.shuffle = false;
         this._playlist = [];
         this.playlistLocation = 0;
-        this.protocol = protocol;
     }
 
     async sendCmd(cmd) {
         try {
-            const response = await fetch(`https://${this.ip}:${this.port}/${cmd}`);
+            const response = await fetch(`${this.protocol}://${this.ip}:${this.port}/${cmd}`);
             const textResponse = await response.text();
             const parser = new DOMParser();
             return parser.parseFromString(textResponse, "application/xml");

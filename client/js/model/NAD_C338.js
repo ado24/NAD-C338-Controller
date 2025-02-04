@@ -1,11 +1,10 @@
-export class NADC338 {
-    constructor(ip, port = 30001) {
-        this.ip = ip;
-        this.port = port;
+import { AudioPlayer } from "./interface/AudioPlayer.js";
+
+export class NAD_C338 extends AudioPlayer {
+    constructor(ip, port = 30001, protocol = "https") {
+        super(ip, port, protocol);
         this.powerState = null;
-        this.volume = null;
         this.source = null;
-        this.mute = null;
         this.brightness = null;
         this.bassEqualization = null;
         this.autoSense = null;
@@ -102,7 +101,8 @@ export class NADC338 {
     }
 
     async getVolume() {
-        return await this.sendCmd('Main.Volume?', true);
+        this.volume = await this.sendCmd('Main.Volume?', true);
+        return super.getVolume();
     }
 
     async getSource() {
