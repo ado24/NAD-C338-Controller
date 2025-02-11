@@ -12,6 +12,13 @@ export class BluOSPlayer extends AudioPlayer {
         this.shuffle = false;
         this._playlist = [];
         this.playlistLocation = 0;
+        this.seekLocation = 0;
+        this.trackLength = 0;
+        this.canSeekTrack = true;
+    }
+
+    getStorageKey() {
+        return 'bluOSPlayerState';
     }
 
     async sendCmd(cmd) {
@@ -28,19 +35,29 @@ export class BluOSPlayer extends AudioPlayer {
 
     async getStatus() {
         const status = await this.sendCmd('Status');
-        if (status) {
-            this.title = status.getElementsByTagName('title1')[0].textContent || 'N/A';
-            this.artist = status.getElementsByTagName('artist')[0].textContent || 'N/A';
-            this.album = status.getElementsByTagName('album')[0].textContent || 'N/A';
-            this.image = status.getElementsByTagName('image')[0].textContent || '';
-            this.streamFormat = status.getElementsByTagName('streamFormat')[0].textContent || 'N/A';
-            this.quality = status.getElementsByTagName('quality')[0].textContent || 'N/A';
-            this.volume = status.getElementsByTagName('volume')[0].textContent || '50';
-            this.playlistLocation = parseInt(status.getElementsByTagName('song')[0].textContent, 10) || 0;
+        try {
+            if (status) {
+                this.title = status.getElementsByTagName('title1')[0]?.textContent || 'N/A';
+                this.artist = status.getElementsByTagName('artist')[0]?.textContent || 'N/A';
+                this.album = status.getElementsByTagName('album')[0]?.textContent || 'N/A';
+                this.image = status.getElementsByTagName('image')[0]?.textContent || '';
+                this.volume = status.getElementsByTagName('volume')[0]?.textContent || '50';
+                this.mute = status.getElementsByTagName('mute')[0]?.textContent === '1';
+                this.shuffle = status.getElementsByTagName('shuffle')[0]?.textContent === '1';
+                this.playlistLocation = parseInt(status.getElementsByTagName('song')[0]?.textContent, 10) || 0;
+                this.seekLocation = parseInt(status.getElementsByTagName('secs')[0]?.textContent) || 0;
+                this.canSeekTrack = parseInt(status.getElementsByTagName('canSeek')[0]?.textContent) === 1;
+                this.trackLength = parseInt(status.getElementsByTagName('totlen')[0]?.textContent) || 0;
 
-            if (!this.image.startsWith('http')) {
-                this.image = `${this.uri}${this.image}`;
+                this.streamFormat = status.getElementsByTagName('streamFormat')[0]?.textContent || 'N/A';
+                this.quality = status.getElementsByTagName('quality')[0]?.textContent || 'N/A';
+
+                if (!this.image.startsWith('http')) {
+                    this.image = `${this.uri}${this.image}`;
+                }
             }
+        } catch (e) {
+            console.error('Error getting status:', e);
         }
 
     }
@@ -50,32 +67,42 @@ export class BluOSPlayer extends AudioPlayer {
     }
 
     async pause() {
-        await this.sendCmd('Pause');
+        await this.sendCmd('Pause?toggle=1');
     }
 
     async skip() {
-        await this.sendCmd('Skip');
+        await this.sendCmd('Skip').then(() => {
+            this.getStatus();
+        });
     }
 
     async back() {
-        await this.sendCmd('Back');
+        await this.sendCmd('Back').then(() => {
+            this.getStatus();
+        });
     }
 
     async stop() {
         await this.sendCmd('Stop');
     }
 
+    async seek(position) {
+        await this.sendCmd(`Play?seek=${position}`);
+    }
+
     async getShuffle() {
         const status = await this.sendCmd('Status');
         if (status) {
-            const shuffle = status.getElementsByTagName('shuffle')[0].textContent;
+            const shuffle = status.getElementsByTagName('shuffle')[0]?.textContent;
             return shuffle === '1';
         }
         return false;
     }
 
     async setShuffle(state) {
-        await this.sendCmd(`Shuffle?state=${state ? 1 : 0}`);
+        await this.sendCmd(`Shuffle?state=${state ? 1 : 0}`).then(() => {
+            this.getStatus();
+        });
     }
 
     async setVolume(level) {
@@ -100,7 +127,7 @@ export class BluOSPlayer extends AudioPlayer {
 
     get playlist() {
         if (!this._playlist.length) {
-            this.fetchPlaylist().then(playlist => {}).catch(console.error);
+            this.fetchPlaylist().then(() => {}).catch(console.error);
         }
         return this._playlist;
     }
@@ -112,10 +139,10 @@ export class BluOSPlayer extends AudioPlayer {
     async getPlaylistRange(start, end) {
         const xmlDoc = await this.sendCmd(`Playlist?start=${start}&end=${end}`);
         const tracks = Array.from(xmlDoc.getElementsByTagName('song')).map(song => ({
-            id: song.getElementsByTagName('id')[0].textContent,
-            title: song.getElementsByTagName('title')[0].textContent,
-            artist: song.getElementsByTagName('artist')[0].textContent,
-            album: song.getElementsByTagName('album')[0].textContent,
+            id: song.getElementsByTagName('id')[0]?.textContent,
+            title: song.getElementsByTagName('title')[0]?.textContent,
+            artist: song.getElementsByTagName('artist')[0]?.textContent,
+            album: song.getElementsByTagName('album')[0]?.textContent,
         }));
         this._playlist = tracks;
         return tracks;

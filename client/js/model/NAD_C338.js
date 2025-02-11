@@ -1,7 +1,12 @@
 import { AudioPlayer } from "./interface/AudioPlayer.js";
 
 export class NAD_C338 extends AudioPlayer {
-    constructor(ip, port = 30001, protocol = "https") {
+    /**
+     * @param {string} ip
+     * @param {number} [port=30001]
+     * @param {string} [protocol="http"]
+     */
+    constructor(ip, port = 30001, protocol = "http") {
         super(ip, port, protocol);
         this.powerState = null;
         this.source = null;
@@ -9,11 +14,16 @@ export class NAD_C338 extends AudioPlayer {
         this.bassEqualization = null;
         this.autoSense = null;
         this.autoStandby = null;
+        this.localServerEndpoint = "http://localhost:30001/";
+    }
+
+    getStorageKey() {
+        return 'nadC338State';
     }
 
     async sendCmd(cmd, readReply = false) {
         try {
-            const response = await fetch(`http://localhost:30001/`, {
+            const response = await fetch(this.localServerEndpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

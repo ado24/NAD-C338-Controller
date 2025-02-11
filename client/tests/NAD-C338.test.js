@@ -1,85 +1,104 @@
 // This is a test file for the NAD-C338 class
-import { NADC338 } from '../model/NAD-C338.js';
-import fetch from 'node-fetch';
-import * as jest from "node/test.js";
-import {beforeEach, describe, it} from "node:test";
+//import { NAD_C338 } from '../js/model/NAD_C338.js';
+import { jest } from '@jest/globals';
+import { beforeEach, describe, test, expect } from '@jest/globals';
 
+//jest.mock('node-fetch', () => jest.fn());
+jest.unstable_mockModule('node-fetch', () => jest.fn());
+// jest.unstable_mockModule('NAD_C338', () => {
+//     return {
+//         NAD_C338: jest.fn().mockImplementation(() => {
+//             return {
+//                 powerOn: jest.fn(),
+//                 powerOff: jest.fn(),
+//                 setVolume: jest.fn(),
+//                 setSource: jest.fn(),
+//                 setMute: jest.fn(),
+//                 unMute: jest.fn()
+//             };
+//         })
+//     };
+// });
 
-jest.mock('node-fetch', () => jest.fn());
+const fetch = await import('node-fetch');
+const { NAD_C338 } = await import('../js/model/NAD_C338.js');
 
-describe('NADC338', () => {
-    const ip = '10.0.0.251';
+describe('NAD_C338', () => {
+    const ip = 'localhost';
     const port = 3000;
+    const protocol = 'http';
     let nad;
 
     beforeEach(() => {
-        nad = new NADC338(ip, port);
+        nad = new NAD_C338(ip, port, protocol);
         fetch.mockClear();
     });
 
-    it('should power on the device', async () => {
+    test('should power on the device', async () => {
         fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
         await nad.powerOn();
 
-        expect(fetch).toHaveBeenCalledWith(`http://${ip}:${port}/power`, expect.objectContaining({
+        expect(fetch).toHaveBeenCalledWith(`${protocol}://${ip}:${port}/power`, expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({ state: 'On' })
         }));
     });
 
-    it('should power off the device', async () => {
-        fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
+    test('should power off the device', async () => {
+        let ret = fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
         await nad.powerOff();
 
-        expect(fetch).toHaveBeenCalledWith(`http://${ip}:${port}/power`, expect.objectContaining({
+        expect(fetch).toHaveBeenCalledWith(`${protocol}://${ip}:${port}/power`, expect.objectContaining({
             method: 'POST',
             body: JSON.stringify({ state: 'Off' })
         }));
     });
 
-    it('should set the volume', async () => {
+    test('should set the volume', async () => {
         const volume = 20;
         fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
         await nad.setVolume(volume);
 
-        expect(fetch).toHaveBeenCalledWith(`http://${ip}:${port}/volume`, expect.objectContaining({
+        expect(fetch).toHaveBeenCalledWith(`${protocol}://${ip}:${port}/volume`, expect.objectContaining({
             method: 'PUT',
             body: JSON.stringify({ level: volume })
         }));
     });
 
-    it('should set the source', async () => {
-        const source = 'CD';
+    test('should set the source', async () => {
+        const source = 'Stream';
         fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
         await nad.setSource(source);
 
-        expect(fetch).toHaveBeenCalledWith(`http://${ip}:${port}/source`, expect.objectContaining({
+        expect(fetch).toHaveBeenCalledWith(`${protocol}://${ip}:${port}/source`, expect.objectContaining({
             method: 'PUT',
             body: JSON.stringify({ source })
         }));
     });
 
-    it('should mute the device', async () => {
+    test('should mute the device', async () => {
         fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
         await nad.setMute();
 
-        expect(fetch).toHaveBeenCalledWith(`http://${ip}:${port}/mute`, expect.objectContaining({
-            method: 'POST'
+        expect(fetch).toHaveBeenCalledWith(`${protocol}://${ip}:${port}/mute`, expect.objectContaining({
+            method: 'POST',
+            body: JSON.stringify({mute: "Off"})
         }));
     });
 
-    it('should unmute the device', async () => {
+    test('should unmute the device', async () => {
         fetch.mockResolvedValueOnce({ ok: true, json: async () => ({}) });
 
         await nad.unMute();
 
-        expect(fetch).toHaveBeenCalledWith(`http://${ip}:${port}/unmute`, expect.objectContaining({
-            method: 'POST'
+        expect(fetch).toHaveBeenCalledWith(`${protocol}://${ip}:${port}/unmute`, expect.objectContaining({
+            method: 'POST',
+            body: 'Ok'
         }));
     });
 

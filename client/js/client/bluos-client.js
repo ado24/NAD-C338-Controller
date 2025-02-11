@@ -1,8 +1,9 @@
 import { BluOSPlayer } from "../model/BluOSPlayer.js";
 
-const bluOsIp = "localhost";
+const bluOsIp = "10.0.0.4";
 const bluOsPort = 3030;
-const updateInterval = 9500;
+const updateInterval = 3000;
+const seekUpdateInterval = 1000;
 const volumeIncrement = 2;
 
 /*
@@ -24,13 +25,22 @@ const bluOsControls = document.getElementById("toggleBluOsControls");
 const bluOsPlaylist = document.getElementById("togglePlaylist");
 const bluOsPlaylistRefresh = document.getElementById("refreshPlaylist");
 
-
+const seekSlider = document.getElementById('seek');
+const currentTimeSpan = document.getElementById('currentTime');
+const totalTimeSpan = document.getElementById('totalTime');
 
 let debounceTimeout;
+let seekInterval;
+// Functions
 
 async function updateStatus() {
     try {
-        await bluOSPlayer.getStatus();
+        // Update status, then set slider
+        await bluOSPlayer.getStatus().then(
+            () => navigator.mediaSession.playbackState !== "playing" ? stopSeekInterval() : startSeekInterval()
+        ).then(
+            () => updateSeekSlider()
+        );
         document.getElementById('trackTitle').textContent  = `Title: ${bluOSPlayer.title}`;
         document.getElementById('trackArtist').textContent = `Artist: ${bluOSPlayer.artist}`;
         document.getElementById('trackAlbum').textContent  = `Album: ${bluOSPlayer.album}`;
@@ -42,8 +52,10 @@ async function updateStatus() {
         const qualityElement = document.getElementById("qualityType");
         if (quality.includes("mqa")) {
             let mqaLabel = quality.includes("mqaAuthored") ? "MQA Studio" : "MQA";
-            qualityElement.innerHTML = `${mqaLabel} <br/><img style="width: 122px; height: 50px;" src="images/mqa-logo.png" alt="MQA Logo" />`;
+            qualityElement.innerHTML = `${mqaLabel}`;
+            document.getElementById("mqaLabel").style.display = "block";
         } else {
+            document.getElementById("mqaLabel").style.display = "none";
             qualityElement.textContent = streamFormat;
         }
 
@@ -67,9 +79,11 @@ async function updateStatus() {
 
 function playTrack() {
     try {
-        bluOSPlayer.play().then(r => {}).catch(console.error);
-        updateMediaSession();
-        navigator.mediaSession.playbackState = "playing";
+        bluOSPlayer.play()
+            .then(() => updateStatus())
+            .then(() => updateMediaSession())
+            .then(() => navigator.mediaSession.playbackState = "playing")
+            .catch(console.error);
     } catch (error) {
         console.error("Error playing:", error);
     }
@@ -77,9 +91,14 @@ function playTrack() {
 
 function pauseTrack() {
     try {
-        bluOSPlayer.pause().then(r => {}).catch(console.error);
-        updateMediaSession();
-        navigator.mediaSession.playbackState = "paused";
+        bluOSPlayer.pause()
+            .then(r => stopSeekInterval())
+            .then(() => updateStatus())
+            .then(() => updateMediaSession())
+            .then(() => navigator.mediaSession.playbackState =
+                    navigator.mediaSession.playbackState === "paused" ?
+                        "playing" : "paused")
+            .catch(console.error);
     } catch (error) {
         console.error("Error pausing:", error);
     }
@@ -95,7 +114,11 @@ function togglePlayPause() {
 
 function skipTrack() {
     try {
-        bluOSPlayer.skip().then(r => {}).catch(console.error);
+        bluOSPlayer.skip()
+            .then(r => stopSeekInterval())
+            .then(() => updateStatus())
+            .then(() => updatePlaylist())
+            .catch(console.error);
         updateMediaSession();
     } catch (error) {
         console.error("Error skipping:", error);
@@ -104,7 +127,10 @@ function skipTrack() {
 
 function backTrack() {
     try {
-        bluOSPlayer.back().then(r => {}).catch(console.error);
+        bluOSPlayer.back()
+            .then(r => stopSeekInterval())
+            .then(() => updateStatus())
+            .catch(console.error);
         updateMediaSession();
     } catch (error) {
         console.error("Error going back:", error);
@@ -113,9 +139,12 @@ function backTrack() {
 
 function stopTrack() {
     try {
-        bluOSPlayer.stop().then(r => {}).catch(console.error);
-        updateMediaSession();
-        navigator.mediaSession.playbackState = 'none'
+        bluOSPlayer.stop()
+            .then(r => stopSeekInterval())
+            .then(() => updateStatus())
+            .then(() => updateMediaSession())
+            .then(() => navigator.mediaSession.playbackState = "none")
+            .catch(console.error);
     } catch (error) {
         console.error('Error stopping:', error);
     }
@@ -141,6 +170,7 @@ function decreaseVolume(increment= 5) {
 async function updatePlaylist(playlist) {
     const playlistTracks = document.getElementById('playlistTracks');
     playlistTracks.innerHTML = ''; // Clear existing tracks
+
     const playlistXmlDoc = playlist || await bluOSPlayer.playlist;
     if (!playlistXmlDoc || typeof playlistXmlDoc.getElementsByTagName !== 'function') {
         console.error('Invalid playlist format');
@@ -151,9 +181,43 @@ async function updatePlaylist(playlist) {
         const title = song.getElementsByTagName('title')[0].textContent;
         const artist = song.getElementsByTagName('art')[0].textContent;
         const li = document.createElement('li');
+
         li.textContent = `${title} by ${artist}`;
         playlistTracks.appendChild(li);
     }
+}
+
+async function updateSeekSlider() {
+    const currentTime = bluOSPlayer.seekLocation;
+    const totalTime = bluOSPlayer.trackLength;
+    const canSeek = bluOSPlayer.canSeekTrack;
+
+    seekSlider.max = totalTime;
+    seekSlider.value = currentTime;
+    seekSlider.disabled = !canSeek;
+
+    currentTimeSpan.textContent = formatTime(currentTime);
+    totalTimeSpan.textContent = formatTime(totalTime);
+}
+
+function startSeekInterval() {
+    clearInterval(seekInterval);
+    seekInterval = setInterval(async () => {
+        bluOSPlayer.seekLocation += 1;
+        updateSeekSlider().then(r => {
+            if (bluOSPlayer.seekLocation >= bluOSPlayer.trackLength) {
+                updateStatus();
+            }
+        });
+    }, seekUpdateInterval);
+}
+function stopSeekInterval() {
+    clearInterval(seekInterval);
+}
+
+function pauseStopSeekInterval() {
+    clearInterval(seekInterval);
+    updateSeekSlider();
 }
 
 function updateMediaSession() {
@@ -179,6 +243,12 @@ function updateMediaSession() {
         navigator.mediaSession.setActionHandler('nexttrack', skipTrack);
         navigator.mediaSession.setActionHandler('stop', stopTrack);
     }
+}
+
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
 // Event Listeners
@@ -237,6 +307,14 @@ bluOsShuffleToggle.addEventListener('change', () => {
     bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(r => {}).catch(console.error);
 });
 
+seekSlider.addEventListener('input', async (event) => {
+    const seekTime = event.target.value;
+    try {
+        await bluOSPlayer.seek(seekTime);
+    } catch (error) {
+        console.error('Error seeking track:', error);
+    }
+});
 
 document.addEventListener('keydown', (event) => {
 
@@ -269,7 +347,7 @@ document.addEventListener('keydown', (event) => {
 
 // Initial update
 updateMediaSession();
-// Poll every 10 seconds
+// Poll every `updateStatus` seconds
 setInterval(updateStatus, updateInterval);
 
 navigator.mediaSession.setActionHandler('play', playTrack);

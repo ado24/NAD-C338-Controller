@@ -111,6 +111,11 @@
             <input type="text" id="bluOSVolumeText" value="50">
             <span id="bluOSVolumeValue">50</span>
         </div>
+        <div class="control-group" id="bluOS-seek-group">
+            <label for="seek">Seek</label>
+            <input type="range" id="seek" min="0" step="1">
+            <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
+        </div>
         <div class="control-group" id="bluOS-reboot-group">
             <label for="reboot">Reboot</label>
             <button id="reboot">Reboot</button>
@@ -124,6 +129,8 @@
             <p id="trackAlbum">Album: N/A</p>
             <p id="streamInfo">Stream Info: N/A</p>
             <span>Quality: </span><span id="qualityType">N/A</span> <!-- New element for quality type -->
+            <br class="mqaLabelStyle"/>
+            <img id="mqaLabel" class="mqaLabelStyle" src="images/mqa-logo.png" alt="MQA Logo" />
         </div>
         <div class="control-group" id="playlist-group">
             <h2>Next 10 Tracks</h2>
@@ -137,7 +144,7 @@
 
     <script type="module" src="js/model/interface/IAudioPlayer.js"></script>
     <script type="module" src="js/model/interface/AudioPlayer.js"></script>
-    <script type="module" src="js/model/NAD-C338.js"></script>
+    <script type="module" src="js/model/NAD_C338.js"></script>
     <script type="module" src="js/client/nad-client.js"></script>
     <script type="module" src="js/client/bluos-client.js"></script>
 </body>

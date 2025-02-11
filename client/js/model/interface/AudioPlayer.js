@@ -1,8 +1,8 @@
 import {IAudioPlayer} from "./IAudioPlayer.js";
 
 export class AudioPlayer extends IAudioPlayer {
-    constructor(ip, port) {
-        super(ip, port);
+    constructor(ip, port, protocol = "https") {
+        super(ip, port, protocol);
         this.volume = 0;
     }
 
