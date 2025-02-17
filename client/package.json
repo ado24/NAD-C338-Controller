@@ -5,7 +5,8 @@
   "main": "js/client/nad-client.js",
   "type": "module",
   "scripts": {
-    "test": "jest NADC338 NAD-C338.test.js --verbose --coverage",
+    "run-test": "jest NAD_C338 NAD-C338.test.js --verbose --coverage",
+    "test": "node --experimental-vm-modules ../node_modules/jest/bin/jest.js",
     "start": "npm run client",
     "client": "npx http-server . -g -b -p 9900 -S -C certs/server.crt -K keys/server.key"
   },
@@ -17,6 +18,7 @@
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
+    "@jest/globals": "^29.7.0",
     "jest": "^29.7.0"
   }
 }

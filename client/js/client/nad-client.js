@@ -1,9 +1,10 @@
-import {NADC338} from "../model/NAD-C338.js";
+import {NAD_C338} from "../model/NAD_C338.js";
 
 const timerWorker = new Worker(new URL("../workers/timerWorker.js", import.meta.url));
-const nadPollingInterval = 9000;
+const nadPollingInterval = 8500;
+const nadOptions = {ip: "10.0.0.251", port: 30001,  protocol: "http"};
 
-let nad = new NADC338("10.0.0.251");
+let nad = new NAD_C338("10.0.0.251", 30001, "https");
 
 // Controls
 const powerOnButton = document.getElementById("powerOn");
@@ -106,7 +107,7 @@ document.getElementById('off-timer-button').addEventListener('click', setOffTime
 
 document.getElementById('setIp').addEventListener('click', () => {
     const ip = document.getElementById('ipAddress').value;
-    nad = new NADC338(ip);
+    nad = new NAD_C338(ip);
 });
 
 powerOnButton.addEventListener('click', () => nad.powerOn());

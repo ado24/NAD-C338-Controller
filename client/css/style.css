@@ -7,10 +7,6 @@ button {
     margin-right: 5px;
 }
 
-.control-group {
-    margin-bottom: 15px;
-}
-
 label {
     display: block;
     margin-bottom: 5px;
@@ -18,6 +14,10 @@ label {
 
 input[type="range"] {
     width: 100%;
+}
+
+.control-group {
+    margin-bottom: 15px;
 }
 
 .text-controls {
@@ -29,7 +29,6 @@ input[type="range"] {
     padding-top: 10px;
 }
 
-
 .toggleNadControls {
     padding: 10px;
 }
@@ -40,6 +39,12 @@ input[type="range"] {
 }
 
 .bassButtons {
+    display: none;
+}
+
+.mqaLabelStyle {
+    width: 122px;
+    height: 50px;
     display: none;
 }
 
