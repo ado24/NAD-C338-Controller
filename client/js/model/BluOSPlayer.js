@@ -48,11 +48,16 @@ export class BluOSPlayer extends AudioPlayer {
                 this.seekLocation = parseInt(status.getElementsByTagName('secs')[0]?.textContent) || 0;
                 this.canSeekTrack = parseInt(status.getElementsByTagName('canSeek')[0]?.textContent) === 1;
                 this.trackLength = parseInt(status.getElementsByTagName('totlen')[0]?.textContent) || 0;
+                this.playState = status.getElementsByTagName('state')[0]?.textContent || 'none';
+                this.playState = this.isPlaying() ? 'playing' : 'paused';
+
 
                 this.streamFormat = status.getElementsByTagName('streamFormat')[0]?.textContent || 'N/A';
                 this.quality = status.getElementsByTagName('quality')[0]?.textContent || 'N/A';
 
-                if (!this.image.startsWith('http')) {
+                if  (this.image.startsWith('http://resources.tidal.com/images/')) {
+                    this.image = this.image.replace('http://resources.tidal.com/images/', 'https://resources.tidal.com/images/');
+                } else if (!this.image.startsWith('http')) {
                     this.image = `${this.uri}${this.image}`;
                 }
             }
@@ -62,8 +67,12 @@ export class BluOSPlayer extends AudioPlayer {
 
     }
 
-    async play() {
-        await this.sendCmd('Play');
+    async play(id= -1) {
+        if (id >= 0) {
+            await this.sendCmd(`Play?id=${id}`);
+        } else {
+            await this.sendCmd('Play');
+        }
     }
 
     async pause() {
@@ -86,8 +95,13 @@ export class BluOSPlayer extends AudioPlayer {
         await this.sendCmd('Stop');
     }
 
+    async mute() {
+        await this.sendCmd('Mute?state=1');
+    }
+
     async seek(position) {
         await this.sendCmd(`Play?seek=${position}`);
+        this.seekLocation = position;
     }
 
     async getShuffle() {
@@ -127,7 +141,8 @@ export class BluOSPlayer extends AudioPlayer {
 
     get playlist() {
         if (!this._playlist.length) {
-            this.fetchPlaylist().then(() => {}).catch(console.error);
+            const currentTrackIndex = parseInt(this.playlistLocation, 10);
+            this.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11).then(() => {}).catch(console.error);
         }
         return this._playlist;
     }

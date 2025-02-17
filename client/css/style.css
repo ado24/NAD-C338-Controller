@@ -48,9 +48,35 @@ input[type="range"] {
     display: none;
 }
 
+.playlist-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    list-style: none;
+}
+
+.playlist-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
+    padding: 4px 8px;
+}
+
+.playlist-link:hover {
+    text-decoration: underline;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .playlist-item {
+    border-bottom-color: #2f2f2f;
+}
+
+.dark-mode .playlist-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
 #darkModeToggle {
     position: relative;
-    right: -180px;
+    right: -170px;
 }
 
 .dark-mode {
@@ -59,17 +85,17 @@ input[type="range"] {
 }
 
 .dark-mode .control-group {
-    background-color: #1e1e1e;
-    border-color: #333333;
+    background-color: #0c0c0c;
+    border-color: #2f2f2f;
 }
 
 .dark-mode button {
-    background-color: #333333;
+    background-color: #343434;
     color: #ffffff;
 }
 
 .dark-mode input,
 .dark-mode select {
-    background-color: #333333;
+    background-color: #343434;
     color: #ffffff;
 }
