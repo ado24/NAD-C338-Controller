@@ -2,9 +2,9 @@ import {NAD_C338} from "../model/NAD_C338.js";
 
 const timerWorker = new Worker(new URL("../workers/timerWorker.js", import.meta.url));
 const nadPollingInterval = 8500;
-const nadOptions = {ip: "10.0.0.251", port: 30001,  protocol: "http"};
+const nadOptions = {ip: "10.0.0.251", port: 30001,  protocol: "https"};
 
-let nad = new NAD_C338("10.0.0.251", 30001, "https");
+let nad = new NAD_C338(nadOptions.ip, nadOptions.port, nadOptions.protocol);
 
 // Controls
 const powerOnButton = document.getElementById("powerOn");
