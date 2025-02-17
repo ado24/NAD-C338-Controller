@@ -92,7 +92,7 @@ function playTrack() {
 function pauseTrack() {
     try {
         bluOSPlayer.pause()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updateMediaSession())
             .then(() => navigator.mediaSession.playbackState =
@@ -115,7 +115,7 @@ function togglePlayPause() {
 function skipTrack() {
     try {
         bluOSPlayer.skip()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaylist())
             .catch(console.error);
@@ -128,7 +128,7 @@ function skipTrack() {
 function backTrack() {
     try {
         bluOSPlayer.back()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .catch(console.error);
         updateMediaSession();
@@ -140,7 +140,7 @@ function backTrack() {
 function stopTrack() {
     try {
         bluOSPlayer.stop()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updateMediaSession())
             .then(() => navigator.mediaSession.playbackState = "none")
@@ -155,7 +155,7 @@ function increaseVolume(increment= 5) {
     bluOSVolumeSlider.value = newVolume;
     bluOSVolumeText.value = newVolume;
     bluOSVolumeValue.textContent = newVolume;
-    bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
+    bluOSPlayer.setVolume(newVolume).then(() => {}).catch(console.error);
 }
 
 function decreaseVolume(increment= 5) {
@@ -163,7 +163,7 @@ function decreaseVolume(increment= 5) {
     bluOSVolumeSlider.value = newVolume;
     bluOSVolumeText.value = newVolume;
     bluOSVolumeValue.textContent = newVolume;
-    bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
+    bluOSPlayer.setVolume(newVolume).then(() => {}).catch(console.error);
 }
 
 
@@ -204,7 +204,7 @@ function startSeekInterval() {
     clearInterval(seekInterval);
     seekInterval = setInterval(async () => {
         bluOSPlayer.seekLocation += 1;
-        updateSeekSlider().then(r => {
+        updateSeekSlider().then(() => {
             if (bluOSPlayer.seekLocation >= bluOSPlayer.trackLength) {
                 updateStatus();
             }
@@ -222,7 +222,7 @@ function pauseStopSeekInterval() {
 
 function updateMediaSession() {
     if ('mediaSession' in navigator) {
-        bluOSPlayer.getStatus().then(r => {}).catch(console.error);
+        bluOSPlayer.getStatus().then(() => {}).catch(console.error);
         navigator.mediaSession.metadata = new MediaMetadata({
             title:  `Title: ${bluOSPlayer.title}`,
             artist: `Artist: ${bluOSPlayer.artist}`,
@@ -304,7 +304,7 @@ bluOsPlaylistRefresh.addEventListener('click', async () => {
 });
 
 bluOsShuffleToggle.addEventListener('change', () => {
-    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(r => {}).catch(console.error);
+    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(() => {}).catch(console.error);
 });
 
 seekSlider.addEventListener('input', async (event) => {
