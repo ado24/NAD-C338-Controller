@@ -15,6 +15,7 @@ const proxyPort = process.env.PROXY_PORT;
 const proxy = httpProxy.createProxyServer({
     target: `http://${endpointIp}:${endpointPort}`,
     changeOrigin: true,
+    upgrade: true,
     secure: false
 });
 
@@ -23,6 +24,19 @@ const httpsOptions = {
     key: fs.readFileSync(endpointKeyPath),
     cert: fs.readFileSync(endpointCertPath)
 };
+
+// Listen for the proxyRes event to handle 301 redirects for Tidal images coming from BluOs
+proxy.on('proxyRes', (proxyRes, req, res) => {
+    if (proxyRes.statusCode === 301 || proxyRes.statusCode === 302) {
+        const location = proxyRes.headers.location;
+        if (location.toString().startsWith("http://resources.tidal.com/")) {
+            res.writeHead(302, {
+                'Location': location.replace('http://', 'https://')
+            });
+            res.end();
+        }
+    }
+});
 
 const server = https.createServer(httpsOptions, (req, res) => {
     proxy.web(req, res);
