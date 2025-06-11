@@ -12,6 +12,7 @@
   },
   "private": true,
   "dependencies": {
+    "client": "file:",
     "dotenv": "^16.4.7",
     "http-proxy": "^1.18.1",
     "http-server": "^14.1.1",

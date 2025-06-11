@@ -141,6 +141,40 @@ paths:
                               type: string
                             quality:
                               type: string
+  /Delete:
+    get:
+      summary: Delete a track from the playlist
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: The ID of the track to delete from the playlist
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+
+    /Move:
+      get:
+        summary: Move a track to a new position in the playlist
+        parameters:
+          - name: old
+            in: query
+            required: true
+            description: The current position of the track in the playlist
+            schema:
+              type: integer
+          - name: new
+            in: query
+            required: true
+            description: The new position for the track in the playlist
+            schema:
+              type: integer
+        responses:
+          '200':
+            description: Successful response
+
   /reboot:
     post:
       summary: Reboot the BluOS player
