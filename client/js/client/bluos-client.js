@@ -213,7 +213,7 @@ function changeVolumeElements(newVolume, updateModel = false) {
     stripVolumeSlider.value = newVolume;
 
     if (updateModel)
-        bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
+        bluOSPlayer.setVolume(newVolume).then(() => {}).catch(console.error);
 }
 
 function increaseVolume(increment = 5) {
