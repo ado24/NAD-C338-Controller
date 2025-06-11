@@ -77,13 +77,57 @@
             <input type="checkbox" id="autoStandbyToggle">
         </div>
         <div class="control-group" id="timer-group">
-            <label for="on-timer">Turn On Timer (seconds):</label>
-            <input type="number" id="on-timer" min="0">
-            <button id="on-timer-button">Set On Timer</button>
-            <br>
-            <label for="off-timer">Turn Off Timer (seconds):</label>
-            <input type="number" id="off-timer" min="0">
-            <button id="off-timer-button">Set Off Timer</button>
+            <div class="timer-controls">
+                <h3>Turn On Timer</h3>
+                <div class="time-spinners">
+                    <select id="on-hours" class="time-spinner">
+                        <option value="0">0h</option>
+                        <option value="1">1h</option>
+                        <option value="2">2h</option>
+                        <option value="3">3h</option>
+                        <option value="4">4h</option>
+                    </select>
+                    <select id="on-minutes" class="time-spinner">
+                        <option value="0">00m</option>
+                        <option value="15">15m</option>
+                        <option value="30">30m</option>
+                        <option value="45">45m</option>
+                    </select>
+                    <select id="on-seconds" class="time-spinner">
+                        <option value="0">00s</option>
+                        <option value="15">15s</option>
+                        <option value="30">30s</option>
+                        <option value="45">45s</option>
+                    </select>
+                    <button id="on-timer-button">Set On Timer</button>
+                </div>
+            </div>
+
+            <div class="timer-controls">
+                <h3>Turn Off Timer</h3>
+                <div class="time-spinners">
+                    <select id="off-hours" class="time-spinner">
+                        <option value="0">0h</option>
+                        <option value="1">1h</option>
+                        <option value="2">2h</option>
+                        <option value="3">3h</option>
+                        <option value="4">4h</option>
+                    </select>
+                    <select id="off-minutes" class="time-spinner">
+                        <option value="0">00m</option>
+                        <option value="15">15m</option>
+                        <option value="30">30m</option>
+                        <option value="45">45m</option>
+                    </select>
+                    <select id="off-seconds" class="time-spinner">
+                        <option value="0">00s</option>
+                        <option value="15">15s</option>
+                        <option value="30">30s</option>
+                        <option value="45">45s</option>
+                    </select>
+                    <button id="off-timer-button">Set Off Timer</button>
+                </div>
+            </div>
         </div>
         <div class="control-group" id="ip-address-group">
             <label for="ipAddress">IP Address</label>

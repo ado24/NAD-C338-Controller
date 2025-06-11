@@ -65,17 +65,26 @@ async function refreshStatus() {
     autoStandbyToggle.checked = (autoStandby === 'On');
 }
 
+// Update the timer functions in nad-client.js
 async function setOnTimer() {
-    const onTimer = document.getElementById('on-timer').value;
-    if (onTimer > 0) {
-        timerWorker.postMessage({ type: 'setOnTimer', duration: onTimer });
+    const hours = parseInt(document.getElementById('on-hours').value);
+    const minutes = parseInt(document.getElementById('on-minutes').value);
+    const seconds = parseInt(document.getElementById('on-seconds').value);
+    const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+    if (totalSeconds > 0) {
+        timerWorker.postMessage({ type: 'setOnTimer', duration: totalSeconds });
     }
 }
 
 async function setOffTimer() {
-    const offTimer = document.getElementById('off-timer').value;
-    if (offTimer > 0) {
-        timerWorker.postMessage({ type: 'setOffTimer', duration: offTimer });
+    const hours = parseInt(document.getElementById('off-hours').value);
+    const minutes = parseInt(document.getElementById('off-minutes').value);
+    const seconds = parseInt(document.getElementById('off-seconds').value);
+    const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+    if (totalSeconds > 0) {
+        timerWorker.postMessage({ type: 'setOffTimer', duration: totalSeconds });
     }
 }
 
