@@ -6,14 +6,12 @@ const updateInterval = 3000;
 const seekUpdateInterval = 1000;
 const volumeIncrement = 2;
 
-/*
-    const bluOsHostname = process.env.BLUOS_HOSTNAME;
-    const bluOsPort_Env = parseInt(process.env.BLUOS_PORT);
-    const updateInterval_Env = parseInt(process.env.POLLING_INTERVAL_MS);
-    const volumeIncrement_Env = parseInt(process.env.VOLUME_INCREMENT);
-*/
-
 const bluOSPlayer = new BluOSPlayer(bluOsIp, bluOsPort);
+
+// Create a dummy audio element
+const dummyAudio = new Audio();
+dummyAudio.src = 'data:audio/wav;base64,UklGRvQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgAEABAAZGF0YQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+dummyAudio.loop = true;
 
 const bluOSVolumeSlider = document.getElementById("bluOSVolume");
 const bluOSVolumeText = document.getElementById("bluOSVolumeText");
@@ -31,16 +29,28 @@ const totalTimeSpan = document.getElementById('totalTime');
 
 let debounceTimeout;
 let seekInterval;
-// Functions
 
-async function updateStatus() {
+async function updateStatus(shouldUpdateMediaSession = true) {
     try {
-        // Update status, then set slider
         await bluOSPlayer.getStatus().then(
-            () => navigator.mediaSession.playbackState !== "playing" ? stopSeekInterval() : startSeekInterval()
+            () => {
+                if (!bluOSPlayer.isPlaying()) {
+                    stopSeekInterval();
+                    dummyAudio.pause();
+                } else {
+                    startSeekInterval();
+                    dummyAudio.play();
+                }
+            }
         ).then(
             () => updateSeekSlider()
+        ).then(
+            () => {
+                if (shouldUpdateMediaSession)
+                    updateMediaSession(false);
+            }
         );
+
         document.getElementById('trackTitle').textContent  = `Title: ${bluOSPlayer.title}`;
         document.getElementById('trackArtist').textContent = `Artist: ${bluOSPlayer.artist}`;
         document.getElementById('trackAlbum').textContent  = `Album: ${bluOSPlayer.album}`;
@@ -59,18 +69,13 @@ async function updateStatus() {
             qualityElement.textContent = streamFormat;
         }
 
-        // Update volume
         const volume = bluOSPlayer.volume || "50";
         bluOSVolumeSlider.value = volume;
         bluOSVolumeText.value = volume;
         bluOSVolumeValue.textContent = volume;
 
-        // Update shuffle toggle
         bluOsShuffleToggle.checked = await bluOSPlayer.getShuffle();
 
-        // Update playlist based on current playing track
-        const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
-        await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11);
         await updatePlaylist();
     } catch (error) {
         console.error("Error updating status:", error);
@@ -80,9 +85,9 @@ async function updateStatus() {
 function playTrack() {
     try {
         bluOSPlayer.play()
+            .then(() => dummyAudio.play())
             .then(() => updateStatus())
-            .then(() => updateMediaSession())
-            .then(() => navigator.mediaSession.playbackState = "playing")
+            .then(() => updatePlaybackState("playing"))
             .catch(console.error);
     } catch (error) {
         console.error("Error playing:", error);
@@ -92,20 +97,35 @@ function playTrack() {
 function pauseTrack() {
     try {
         bluOSPlayer.pause()
-            .then(() => stopSeekInterval())
+            .then(() => dummyAudio.pause())
+            .then(r => stopSeekInterval())
             .then(() => updateStatus())
-            .then(() => updateMediaSession())
-            .then(() => navigator.mediaSession.playbackState =
-                    navigator.mediaSession.playbackState === "paused" ?
-                        "playing" : "paused")
+            .then(() => updatePlaybackState("paused"))
             .catch(console.error);
     } catch (error) {
         console.error("Error pausing:", error);
     }
 }
 
+function stopTrack() {
+    try {
+
+        bluOSPlayer.stop()
+            .then(r => stopSeekInterval())
+            .then(() => updateStatus())
+            .then(() => updatePlaybackState('none'))
+            .then(() => {
+                dummyAudio.pause();
+                dummyAudio.currentTime = 0;
+            })
+            .catch(console.error);
+    } catch (error) {
+        console.error('Error stopping:', error);
+    }
+}
+
 function togglePlayPause() {
-    if (navigator.mediaSession.playbackState === 'playing') {
+    if (bluOSPlayer.isPlaying()) {
         pauseTrack();
     } else {
         playTrack();
@@ -115,7 +135,7 @@ function togglePlayPause() {
 function skipTrack() {
     try {
         bluOSPlayer.skip()
-            .then(() => stopSeekInterval())
+            .then(r => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaylist())
             .catch(console.error);
@@ -128,7 +148,7 @@ function skipTrack() {
 function backTrack() {
     try {
         bluOSPlayer.back()
-            .then(() => stopSeekInterval())
+            .then(r => stopSeekInterval())
             .then(() => updateStatus())
             .catch(console.error);
         updateMediaSession();
@@ -137,25 +157,12 @@ function backTrack() {
     }
 }
 
-function stopTrack() {
-    try {
-        bluOSPlayer.stop()
-            .then(() => stopSeekInterval())
-            .then(() => updateStatus())
-            .then(() => updateMediaSession())
-            .then(() => navigator.mediaSession.playbackState = "none")
-            .catch(console.error);
-    } catch (error) {
-        console.error('Error stopping:', error);
-    }
-}
-
 function increaseVolume(increment= 5) {
     let newVolume = Math.min(parseInt(bluOSVolumeSlider.value) + increment, 100);
     bluOSVolumeSlider.value = newVolume;
     bluOSVolumeText.value = newVolume;
     bluOSVolumeValue.textContent = newVolume;
-    bluOSPlayer.setVolume(newVolume).then(() => {}).catch(console.error);
+    bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
 }
 
 function decreaseVolume(increment= 5) {
@@ -163,28 +170,49 @@ function decreaseVolume(increment= 5) {
     bluOSVolumeSlider.value = newVolume;
     bluOSVolumeText.value = newVolume;
     bluOSVolumeValue.textContent = newVolume;
-    bluOSPlayer.setVolume(newVolume).then(() => {}).catch(console.error);
+    bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
 }
-
 
 async function updatePlaylist(playlist) {
     const playlistTracks = document.getElementById('playlistTracks');
-    playlistTracks.innerHTML = ''; // Clear existing tracks
+    playlistTracks.innerHTML = '';
 
     const playlistXmlDoc = playlist || await bluOSPlayer.playlist;
-    if (!playlistXmlDoc || typeof playlistXmlDoc.getElementsByTagName !== 'function') {
+    if (!playlistXmlDoc) {
+        console.log('No playlist to update');
+        return;
+    } else if (playlistXmlDoc.length === 0) {
+        console.log('Empty playlist');
+        return;
+    }
+    else if (typeof playlistXmlDoc.getElementsByTagName !== 'function') {
         console.error('Invalid playlist format');
         return;
     }
+
     const songs = playlistXmlDoc.getElementsByTagName('song');
-    for (let song of songs) {
+    Array.from(songs).forEach((song, index) => {
         const title = song.getElementsByTagName('title')[0].textContent;
         const artist = song.getElementsByTagName('art')[0].textContent;
-        const li = document.createElement('li');
+        const songId = song.getAttribute('id')?.toString();
 
-        li.textContent = `${title} by ${artist}`;
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        li.className = 'playlist-item';
+        link.className = 'playlist-link';
+        link.href = '#';
+        link.textContent = `${title} by ${artist}`;
+        link.dataset.index = songId || index;
+
+        link.addEventListener('click', async (e) => {
+            e.preventDefault();
+            await bluOSPlayer.play(songId);
+            await updateStatus();
+        });
+
+        li.appendChild(link);
         playlistTracks.appendChild(li);
-    }
+    });
 }
 
 async function updateSeekSlider() {
@@ -198,35 +226,36 @@ async function updateSeekSlider() {
 
     currentTimeSpan.textContent = formatTime(currentTime);
     totalTimeSpan.textContent = formatTime(totalTime);
+    dummyAudio.currentTime = currentTime;
 }
 
 function startSeekInterval() {
     clearInterval(seekInterval);
     seekInterval = setInterval(async () => {
         bluOSPlayer.seekLocation += 1;
-        updateSeekSlider().then(() => {
+        updateSeekSlider().then(r => {
             if (bluOSPlayer.seekLocation >= bluOSPlayer.trackLength) {
                 updateStatus();
             }
         });
     }, seekUpdateInterval);
 }
+
 function stopSeekInterval() {
     clearInterval(seekInterval);
 }
 
-function pauseStopSeekInterval() {
-    clearInterval(seekInterval);
-    updateSeekSlider();
-}
-
-function updateMediaSession() {
+function updateMediaSession(getUpdate= true, setActionHandlers = false) {
     if ('mediaSession' in navigator) {
-        bluOSPlayer.getStatus().then(() => {}).catch(console.error);
+        if (getUpdate) {
+            bluOSPlayer.getStatus().then(r => {
+            }).catch(console.error);
+        }
+        
         navigator.mediaSession.metadata = new MediaMetadata({
-            title:  `Title: ${bluOSPlayer.title}`,
-            artist: `Artist: ${bluOSPlayer.artist}`,
-            album:  `Album: ${bluOSPlayer.album}`,
+            title:  `${bluOSPlayer.title}`,
+            artist: `${bluOSPlayer.artist}`,
+            album:  `${bluOSPlayer.album}`,
             artwork: [
                 {src: bluOSPlayer.image, sizes: '96x96',   type: 'image/jpeg'},
                 {src: bluOSPlayer.image, sizes: '128x128', type: 'image/jpeg'},
@@ -237,11 +266,69 @@ function updateMediaSession() {
             ]
         });
 
-        navigator.mediaSession.setActionHandler('play', playTrack);
-        navigator.mediaSession.setActionHandler('pause', pauseTrack);
-        navigator.mediaSession.setActionHandler('previoustrack', backTrack);
-        navigator.mediaSession.setActionHandler('nexttrack', skipTrack);
-        navigator.mediaSession.setActionHandler('stop', stopTrack);
+        if (setActionHandlers) {
+            navigator.mediaSession.setActionHandler('play', playTrack);
+            navigator.mediaSession.setActionHandler('pause', pauseTrack);
+            navigator.mediaSession.setActionHandler('previoustrack', backTrack);
+            navigator.mediaSession.setActionHandler('nexttrack', skipTrack);
+            navigator.mediaSession.setActionHandler('stop', stopTrack);
+        }
+
+        // Add inside updateMediaSession() function, before the last closing brace
+        if ('setPositionState' in navigator.mediaSession) {
+            navigator.mediaSession.setPositionState({
+                duration: bluOSPlayer.trackLength,
+                playbackRate: 1.0,
+                position: bluOSPlayer.seekLocation
+            });
+        }
+
+        navigator.mediaSession.setActionHandler('seekto', async (details) => {
+            const newTime = Math.max(0, Math.min(details.seekTime, bluOSPlayer.trackLength));
+            if (details.fastSeek && 'fastSeek' in dummyAudio) {
+                dummyAudio.fastSeek(newTime);
+            } else {
+                dummyAudio.currentTime = newTime;
+            }
+            await bluOSPlayer.seek(newTime);
+            await updateSeekSlider();
+        });
+
+        navigator.mediaSession.setActionHandler('seekbackward', async () => {
+            const skipTime = 10; // Skip 10 seconds backward
+            const newTime = Math.max(0, bluOSPlayer.seekLocation - skipTime);
+            await bluOSPlayer.seek(newTime);
+            dummyAudio.currentTime = newTime;
+            await updateSeekSlider();
+        });
+
+        navigator.mediaSession.setActionHandler('seekforward', async () => {
+            const skipTime = 10; // Skip 10 seconds forward
+            const newTime = Math.min(bluOSPlayer.trackLength, bluOSPlayer.seekLocation + skipTime);
+            await bluOSPlayer.seek(newTime);
+            dummyAudio.currentTime = newTime;
+            currentTimeSpan.textContent = formatTime(newTime);
+            await updateSeekSlider();
+        });
+
+        updatePlaybackState(bluOSPlayer.playState);
+    }
+}
+
+function updatePlaybackState(state) {
+    if ('mediaSession' in navigator) {
+        if (["playing", "paused", "none"].includes(state)) {
+            navigator.mediaSession.playbackState = state;
+            bluOSPlayer.playState = state;
+            /*
+            if (["playing", "paused"].includes(state))
+                "paused" === state ?
+                    dummyAudio.pause() :
+                    dummyAudio.play().then(r => { console.error('Could not start dummy audio') });
+            */
+        } else {
+            console.error('Invalid playback state:', state);
+        }
     }
 }
 
@@ -250,8 +337,6 @@ function formatTime(seconds) {
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
-
-// Event Listeners
 
 document.getElementById('play').addEventListener('click', playTrack);
 document.getElementById('pause').addEventListener('click', pauseTrack);
@@ -272,11 +357,13 @@ bluOSVolumeSlider.addEventListener('input', () => {
     bluOSVolumeText.value = bluOSVolumeSlider.value;
     bluOSPlayer.setVolume(bluOSVolumeSlider.value);
 });
+
 bluOSVolumeText.addEventListener('input', () => {
     bluOSVolumeSlider.value = bluOSVolumeText.value;
     bluOSVolumeValue.textContent = bluOSVolumeText.value;
     bluOSPlayer.setVolume(bluOSVolumeText.value);
 });
+
 bluOsControls.addEventListener('click', () => {
     const bluOsControls = document.getElementById('bluOs-control-group');
     bluOsControls.style.display = bluOsControls.style.display === 'none' ? 'block' : 'none';
@@ -304,7 +391,7 @@ bluOsPlaylistRefresh.addEventListener('click', async () => {
 });
 
 bluOsShuffleToggle.addEventListener('change', () => {
-    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(() => {}).catch(console.error);
+    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(r => {}).catch(console.error);
 });
 
 seekSlider.addEventListener('input', async (event) => {
@@ -317,11 +404,10 @@ seekSlider.addEventListener('input', async (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
-
     clearTimeout(debounceTimeout);
     debounceTimeout = setTimeout(() => {
         switch (event.key) {
-            case 'MediaPlayPause':
+/*            case 'MediaPlayPause':
                 togglePlayPause();
                 break;
             case 'MediaTrackNext':
@@ -333,6 +419,7 @@ document.addEventListener('keydown', (event) => {
             case 'MediaStop':
                 stopTrack();
                 break;
+*/
             case 'AudioVolumeDown':
                 decreaseVolume(volumeIncrement);
                 break;
@@ -342,17 +429,9 @@ document.addEventListener('keydown', (event) => {
             default:
                 break;
         }
-    }, 200); // Adjust the debounce delay as needed
+    }, 200);
 });
 
-// Initial update
-updateMediaSession();
-// Poll every `updateStatus` seconds
+updateMediaSession(true, true);
+updatePlaybackState(bluOSPlayer.playState);
 setInterval(updateStatus, updateInterval);
-
-navigator.mediaSession.setActionHandler('play', playTrack);
-navigator.mediaSession.setActionHandler('pause', pauseTrack);
-navigator.mediaSession.setActionHandler('previoustrack', backTrack);
-navigator.mediaSession.setActionHandler('nexttrack', skipTrack);
-navigator.mediaSession.setActionHandler('stop', stopTrack);
-

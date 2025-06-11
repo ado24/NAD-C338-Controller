@@ -4,6 +4,7 @@ export class AudioPlayer extends IAudioPlayer {
     constructor(ip, port, protocol = "https") {
         super(ip, port, protocol);
         this.volume = 0;
+        this.playState = "none";
     }
 
     async sendCmd(cmd) {
@@ -23,5 +24,9 @@ export class AudioPlayer extends IAudioPlayer {
     async setVolume(level) {
         await this.sendCmd(`Volume?level=${level}`);
         this.volume = level;
+    }
+
+    isPlaying() {
+        return this.playState.toLowerCase().startsWith("play");
     }
 }

@@ -1,0 +1,23 @@
+.trackArtImg {
+    width: 200px;
+    height: 200px;
+}
+
+.playlist-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    list-style: none;
+}
+
+.playlist-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    display: block;
+    padding: 4px 8px;
+}
+
+.playlist-link:hover {
+    text-decoration: underline;
+    background-color: rgba(0, 0, 0, 0.05);
+}

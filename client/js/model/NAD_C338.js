@@ -1,12 +1,7 @@
 import { AudioPlayer } from "./interface/AudioPlayer.js";
 
 export class NAD_C338 extends AudioPlayer {
-    /**
-     * @param {string} ip
-     * @param {number} [port=30001]
-     * @param {string} [protocol="http"]
-     */
-    constructor(ip, port = 30001, protocol = "http") {
+    constructor(ip, port = 30001, protocol = "http", localServerEndpoint = "https://10.0.0.4:3000") {
         super(ip, port, protocol);
         this.powerState = null;
         this.source = null;
@@ -14,27 +9,31 @@ export class NAD_C338 extends AudioPlayer {
         this.bassEqualization = null;
         this.autoSense = null;
         this.autoStandby = null;
-        this.localServerEndpoint = "http://localhost:30001/";
+        this.localServerEndpoint = localServerEndpoint;
     }
 
     getStorageKey() {
         return 'nadC338State';
     }
 
-    async sendCmd(cmd, readReply = false) {
+    async sendCmd(endpoint, method = 'GET', body = null) {
         try {
-            const response = await fetch(this.localServerEndpoint, {
-                method: 'POST',
+            const response = await fetch(`${this.localServerEndpoint}${endpoint}`, {
+                method,
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
                 },
-                body: JSON.stringify({ip: this.ip, port: this.port, cmd})
+                body: body ? JSON.stringify(body) : null
             });
-            if (readReply) {
-                const text = await response.text();
-                return text.split('=')[1].trim();
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            } else if (response.headers.get('content-type')?.includes('text/plain')
+                && response.headers.get('content-length') === '2') {
+                return response.status;
             }
-            return null;
+            return await response?.json();
         } catch (error) {
             console.error('Error sending command:', error);
             throw error;
@@ -42,100 +41,115 @@ export class NAD_C338 extends AudioPlayer {
     }
 
     async powerOn() {
-        await this.sendCmd('Main.Power=On', true);
+        await this.sendCmd('/power', 'POST', { state: 'On' });
         this.powerState = 'On';
     }
 
     async powerOff() {
-        await this.sendCmd('Main.Power=Off', true);
+        await this.sendCmd('/power', 'POST', { state: 'Off' });
         this.powerState = 'Off';
     }
 
     async setVolume(vol) {
-        await this.sendCmd(`Main.Volume=${vol}`, true);
+        await this.sendCmd('/volume', 'PUT', { level: vol });
         this.volume = vol;
     }
 
     async setSource(source) {
-        await this.sendCmd(`Main.Source=${source}`, true);
+        await this.sendCmd('/source', 'PUT', { source });
         this.source = source;
     }
 
     async setMute() {
-        await this.sendCmd('Main.Mute=On', true);
+        await this.sendCmd('/mute', 'POST');
         this.mute = 'On';
     }
 
     async unMute() {
-        await this.sendCmd('Main.Mute=Off', true);
+        await this.sendCmd('/unmute', 'POST');
         this.mute = 'Off';
     }
 
     async setBrightness(level) {
-        await this.sendCmd(`Main.Brightness=${level}`, true);
+        await this.sendCmd('/brightness', 'PUT', { level });
         this.brightness = level;
     }
 
     async setBass() {
-        await this.sendCmd('Main.Bass=On', true);
+        await this.sendCmd('/bass', 'POST');
         this.bassEqualization = 'On';
     }
 
     async unsetBass() {
-        await this.sendCmd('Main.Bass=Off', true);
+        await this.sendCmd('/bass', 'DELETE');
         this.bassEqualization = 'Off';
     }
 
     async setAutoSense() {
-        await this.sendCmd('Main.AutoSense=On', true);
+        await this.sendCmd('/auto-sense', 'POST');
         this.autoSense = 'On';
     }
 
     async unsetAutoSense() {
-        await this.sendCmd('Main.AutoSense=Off', true);
+        await this.sendCmd('/auto-sense', 'DELETE');
         this.autoSense = 'Off';
     }
 
     async setAutoStandby() {
-        await this.sendCmd('Main.AutoStandby=On', true);
+        await this.sendCmd('/auto-standby', 'POST');
         this.autoStandby = 'On';
     }
 
     async unsetAutoStandby() {
-        await this.sendCmd('Main.AutoStandby=Off', true);
+        await this.sendCmd('/auto-standby', 'DELETE');
         this.autoStandby = 'Off';
     }
 
     async getPower() {
-        return await this.sendCmd('Main.Power?', true);
+        const data = await this.sendCmd('/power');
+        this.powerState = data.power;
+        return this.powerState;
     }
 
     async getVolume() {
-        this.volume = await this.sendCmd('Main.Volume?', true);
-        return super.getVolume();
+        const data = await this.sendCmd('/volume');
+        this.volume = data.volume;
+        return this.volume;
     }
 
     async getSource() {
-        return await this.sendCmd('Main.Source?', true);
+        const data = await this.sendCmd('/source');
+        this.source = data.source;
+        return this.source;
     }
 
     async getMute() {
-        return await this.sendCmd('Main.Mute?', true);
+        const data = await this.sendCmd('/mute');
+        this.mute = data.mute;
+        return this.mute;
     }
 
     async getBrightness() {
-        return await this.sendCmd('Main.Brightness?', true);
+        const data = await this.sendCmd('/brightness');
+        this.brightness = data.brightness;
+        return this.brightness;
     }
 
     async getBass() {
-        return await this.sendCmd('Main.Bass?', true);
+        const data = await this.sendCmd('/bass');
+        this.bassEqualization = data.bass;
+        return this.bassEqualization;
     }
 
     async getAutoSense() {
-        return await this.sendCmd('Main.AutoSense?', true);
+        const data = await this.sendCmd('/auto-sense');
+        this.autoSense = data.autoSense;
+        return this.autoSense;
     }
 
     async getAutoStandby() {
-        return await this.sendCmd('Main.AutoStandby?', true);
+        const data = await this.sendCmd('/auto-standby');
+        this.autoStandby = data.autoStandby;
+        return this.autoStandby;
     }
 }
