@@ -1,12 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>NAD C338 Control</title>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NAD C338 Control</title>
+    <meta name="description" content="NAD C338 Controller Application">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-title" content="NAD C338">
+
+    <link rel="apple-touch-icon" href="/images/nad-logo-192.png">
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" as="style">
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#007bff">
 </head>
 <body>
     <h1>NAD C338 Control</h1>
@@ -87,7 +97,10 @@
 
     <!-- BluOS Control -->
     <h1>BluOS Control</h1>
-    <button id="toggleBluOsControls">Toggle<br>BluOS Controls</button>
+    <div>
+        <button id="toggleBluOsControls">Toggle<br>BluOS Controls</button>
+        <button id="control-strip-toggle">Toggle<br>Control Strip</button>
+    </div>
     <div id="bluOs-control-group">
         <div class="control-group" id="bluOS-play-group">
             <label for="play">Play Controls</label>
@@ -133,12 +146,55 @@
             <br class="mqaLabelStyle"/>
             <img id="mqaLabel" class="mqaLabelStyle" src="images/mqa-logo.png" alt="MQA Logo" />
         </div>
-        <div class="control-group" id="playlist-group">
+        <div class="control-group margin-bottom-large" id="playlist-group">
             <h2>Next 10 Tracks</h2>
             <button id="togglePlaylist">Show Playlist</button>
             <button id="refreshPlaylist">Refresh Playlist</button>
+            <button id="editPlaylist" class="btn btn-secondary">
+                <i class="fas fa-edit"></i>
+            </button>
             <div id="playlist" style="display: none;">
                 <ul id="playlistTracks"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="control-strip" class="control-strip">
+        <div class="control-strip-content">
+            <div class="control-strip-info">
+                <div id="control-strip-info-container" class="track-info-scroll" data-text="Not Playing">
+                    <span id="strip-title" data-text="Not Playing">Not Playing</span>
+                </div>
+            </div>
+
+            <div class="control-strip-controls">
+                <div class="control-strip-buttons">
+                    <button id="strip-back" title="Previous"><i class="fas fa-step-backward"></i></button>
+                    <button id="strip-play" title="Play/Pause"><i class="fas fa-play"></i></button>
+                    <button id="strip-skip" title="Next"><i class="fas fa-step-forward"></i></button>
+                </div>
+
+                <div class="control-strip-volume">
+                    <i class="fas fa-volume-up"></i>
+                    <input type="range" id="strip-volume" min="0" max="100" value="50">
+                    <span id="strip-volume-value">50</span>
+                </div>
+
+                <div class="control-strip-seek">
+                    <input type="range" id="strip-seek" min="0" step="1">
+                    <div class="seek-times">
+                        <span id="strip-current-time">0:00</span> / <span id="strip-total-time">0:00</span>
+                    </div>
+                </div>
+
+                <div class="control-strip-toggles">
+                    <button class="toggle-controls" id="strip-toggle-volume" title="Toggle Volume">
+                        <i class="fas fa-volume-up"></i>
+                    </button>
+                    <button class="toggle-controls" id="strip-toggle-seek" title="Toggle Seek">
+                        <i class="fas fa-clock"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -148,5 +204,16 @@
     <script type="module" src="js/model/NAD_C338.js"></script>
     <script type="module" src="js/client/nad-client.js"></script>
     <script type="module" src="js/client/bluos-client.js"></script>
+
+    <script type="application/javascript" defer>
+        // Register the service worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker registered:', reg.scope))
+                    .catch(err => console.log('Service Worker registration failed:', err));
+            });
+        }
+    </script>
 </body>
 </html>

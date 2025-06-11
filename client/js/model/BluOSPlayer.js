@@ -15,6 +15,7 @@ export class BluOSPlayer extends AudioPlayer {
         this.seekLocation = 0;
         this.trackLength = 0;
         this.canSeekTrack = true;
+        this.isEditMode = false;
     }
 
     getStorageKey() {
@@ -161,5 +162,23 @@ export class BluOSPlayer extends AudioPlayer {
         }));
         this._playlist = tracks;
         return tracks;
+    }
+
+    async deleteTrack(id) {
+        const response = await this.sendCmd(`Delete?id=${id}`);
+        const deletedId = response.getElementsByTagName('deleted')[0]?.textContent;
+        if (!deletedId) {
+            throw new Error('Failed to delete track');
+        }
+        return parseInt(deletedId, 10);
+    }
+
+    async moveTrack(oldPosition, newPosition) {
+        const response = await this.sendCmd(`Move?old=${oldPosition}&new=${newPosition}`);
+        const result = response.getElementsByTagName('moved')[0]?.textContent;
+        if (result !== 'moved') {
+            throw new Error('Failed to move track');
+        }
+        return true;
     }
 }

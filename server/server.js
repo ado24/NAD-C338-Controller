@@ -1,6 +1,13 @@
 const http = require('http');
 const net = require('net');
 
+// Cache settings for different response types
+const cacheSettings = {
+    status: 'no-store, no-cache, must-revalidate',
+    command: 'no-store',
+    default: 'private, no-cache'
+};
+
 let client = null;
 
 const connectToServer = (ip, port) => {
@@ -23,12 +30,14 @@ const connectToServer = (ip, port) => {
 };
 
 const requestHandler = async (req, res) => {
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Set CORS and basic headers
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
     if (req.method === 'OPTIONS') {
+        res.setHeader('Cache-Control', cacheSettings.default);
         res.writeHead(204);
         res.end();
         return;
@@ -41,6 +50,10 @@ const requestHandler = async (req, res) => {
         });
         req.on('end', async () => {
             const { ip, port, cmd } = JSON.parse(body);
+
+            // Set appropriate cache control based on command type
+            const cacheControl = cmd.includes('?') ? cacheSettings.status : cacheSettings.command;
+            res.setHeader('Cache-Control', cacheControl);
 
             if (!client) {
                 try {
@@ -65,6 +78,7 @@ const requestHandler = async (req, res) => {
             });
         });
     } else {
+        res.setHeader('Cache-Control', cacheSettings.default);
         res.statusCode = 404;
         res.end('Not Found');
     }

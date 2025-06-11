@@ -2,7 +2,7 @@ import { BluOSPlayer } from "../model/BluOSPlayer.js";
 
 const bluOsIp = "10.0.0.4";
 const bluOsPort = 3030;
-const updateInterval = 3000;
+const updateInterval = 2750;
 const seekUpdateInterval = 1000;
 const volumeIncrement = 2;
 
@@ -13,6 +13,10 @@ const dummyAudio = new Audio();
 dummyAudio.src = 'data:audio/wav;base64,UklGRvQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgAEABAAZGF0YQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
 dummyAudio.loop = true;
 
+// Set attributes for better mobile support
+dummyAudio.setAttribute('playsinline', '');
+dummyAudio.setAttribute('webkit-playsinline', '');
+
 const bluOSVolumeSlider = document.getElementById("bluOSVolume");
 const bluOSVolumeText = document.getElementById("bluOSVolumeText");
 const bluOSVolumeValue = document.getElementById("bluOSVolumeValue");
@@ -22,13 +26,32 @@ const darkModeToggle = document.getElementById("darkModeToggle")
 const bluOsControls = document.getElementById("toggleBluOsControls");
 const bluOsPlaylist = document.getElementById("togglePlaylist");
 const bluOsPlaylistRefresh = document.getElementById("refreshPlaylist");
+const bluOsPlaylistEdit = document.getElementById("editPlaylist");
 
 const seekSlider = document.getElementById('seek');
 const currentTimeSpan = document.getElementById('currentTime');
 const totalTimeSpan = document.getElementById('totalTime');
 
+const stripToggle = document.getElementById('control-strip-toggle');
+const controlStrip = document.getElementById('control-strip');
+const stripButtons = document.querySelector('.control-strip-buttons');
+const stripVolume = document.querySelector('.control-strip-volume');
+const stripVolumeSlider = document.getElementById('strip-volume');
+const stripVolumeValue = document.getElementById('strip-volume-value');
+const stripPlay = document.getElementById('strip-play');
+
+const stripTrackInfo = document.getElementById('strip-title');
+const stripToggleVolume = document.getElementById('strip-toggle-volume');
+const stripToggleSeek = document.getElementById('strip-toggle-seek');
+const stripSeek = document.querySelector('.control-strip-seek');
+const stripSeekSlider = document.getElementById('strip-seek');
+const stripCurrentTime = document.getElementById('strip-current-time');
+const stripTotalTime = document.getElementById('strip-total-time');
+
 let debounceTimeout;
 let seekInterval;
+let isEditMode = false;
+let draggedItem = null;
 
 async function updateStatus(shouldUpdateMediaSession = true) {
     try {
@@ -77,6 +100,30 @@ async function updateStatus(shouldUpdateMediaSession = true) {
         bluOsShuffleToggle.checked = await bluOSPlayer.getShuffle();
 
         await updatePlaylist();
+
+        const fullTitle = `${bluOSPlayer.title} - ${bluOSPlayer.artist}`
+        const trackInfoContainer = document.getElementById('control-strip-info-container');
+        stripTrackInfo.textContent = fullTitle;
+        stripTrackInfo.dataset.text = fullTitle;
+        trackInfoContainer.dataset.text = fullTitle;
+
+        stripVolumeSlider.value = bluOSPlayer.volume;
+        stripVolumeValue.textContent = bluOSPlayer.volume;
+
+        // Update play button icon
+        stripPlay.querySelector('i').classList.remove('fa-play', 'fa-pause');
+        stripPlay.querySelector('i').classList.add(
+            bluOSPlayer.isPlaying() ? 'fa-pause' : 'fa-play'
+        );
+
+        // Update seek slider in control strip
+        stripSeekSlider.max = bluOSPlayer.trackLength;
+        stripSeekSlider.value = bluOSPlayer.seekLocation;
+        stripSeekSlider.disabled = !bluOSPlayer.canSeekTrack;
+        stripCurrentTime.textContent = formatTime(bluOSPlayer.seekLocation);
+        stripTotalTime.textContent = formatTime(bluOSPlayer.trackLength);
+
+
     } catch (error) {
         console.error("Error updating status:", error);
     }
@@ -98,7 +145,7 @@ function pauseTrack() {
     try {
         bluOSPlayer.pause()
             .then(() => dummyAudio.pause())
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaybackState("paused"))
             .catch(console.error);
@@ -111,7 +158,7 @@ function stopTrack() {
     try {
 
         bluOSPlayer.stop()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaybackState('none'))
             .then(() => {
@@ -135,7 +182,7 @@ function togglePlayPause() {
 function skipTrack() {
     try {
         bluOSPlayer.skip()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaylist())
             .catch(console.error);
@@ -148,7 +195,7 @@ function skipTrack() {
 function backTrack() {
     try {
         bluOSPlayer.back()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .catch(console.error);
         updateMediaSession();
@@ -157,20 +204,130 @@ function backTrack() {
     }
 }
 
-function increaseVolume(increment= 5) {
-    let newVolume = Math.min(parseInt(bluOSVolumeSlider.value) + increment, 100);
+function changeVolumeElements(newVolume, updateModel = false) {
     bluOSVolumeSlider.value = newVolume;
     bluOSVolumeText.value = newVolume;
     bluOSVolumeValue.textContent = newVolume;
-    bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
+
+    stripVolumeValue.textContent = newVolume;
+    stripVolumeValue.value = newVolume
+    stripVolumeSlider.value = newVolume;
+
+    if (updateModel)
+        bluOSPlayer.setVolume(newVolume).then(() => {}).catch(console.error);
 }
 
-function decreaseVolume(increment= 5) {
+function increaseVolume(increment = 5) {
+    let newVolume = Math.min(parseInt(bluOSVolumeSlider.value) + increment, 100);
+    changeVolumeElements(newVolume, true);
+}
+
+function decreaseVolume(increment = 5) {
     let newVolume = Math.max(parseInt(bluOSVolumeSlider.value) - increment, 0);
-    bluOSVolumeSlider.value = newVolume;
-    bluOSVolumeText.value = newVolume;
-    bluOSVolumeValue.textContent = newVolume;
-    bluOSPlayer.setVolume(newVolume).then(r => {}).catch(console.error);
+    changeVolumeElements(newVolume, true);
+}
+
+function enableDragAndDrop(element) {
+    element.draggable = true;
+    element.classList.add('draggable');
+}
+
+function disableDragAndDrop(element) {
+    element.draggable = false;
+    element.classList.remove('draggable');
+}
+
+function handleDragStart(e) {
+    if (!isEditMode) return;
+    draggedItem = e.target;
+    e.target.classList.add('dragging');
+}
+
+function handleDragOver(e) {
+    if (!isEditMode) return;
+    e.preventDefault();
+}
+
+function handleTouchStart(e) {
+    if (!isEditMode) return;
+    draggedItem = e.target.closest('.playlist-item');
+    draggedItem.classList.add('dragging');
+    e.target.style.opacity = '0.5';
+}
+
+function handleTouchMove(e) {
+    if (!isEditMode) return;
+    e.preventDefault();
+    const touch = e.touches[0];
+    const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+    const dropTarget = elements.find(el => el.classList.contains('playlist-item'));
+
+    if (dropTarget && dropTarget !== draggedItem) {
+        dropTarget.classList.add('drag-over');
+    }
+}
+
+function handleTouchEnd(e) {
+    if (!isEditMode) return;
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+    const dropTarget = elements.find(el => el.classList.contains('playlist-item'));
+
+    if (dropTarget && draggedItem) {
+        const oldIndex = draggedItem.getAttribute('data-index');
+        const newIndex = dropTarget.getAttribute('data-index');
+
+        bluOSPlayer.moveTrack(oldIndex, newIndex)
+            .then(() => refreshPlaylist())
+            .catch(error => console.error('Error moving track:', error));
+    }
+
+    draggedItem.style.opacity = '1';
+    draggedItem.classList.remove('dragging');
+    document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    draggedItem = null;
+}
+
+async function handleDrop(e) {
+    if (!isEditMode) return;
+    e.preventDefault();
+
+    const dropTarget = e.target.closest('.playlist-item');
+    if (!dropTarget || !draggedItem) return;
+
+    const oldIndex = draggedItem.getAttribute('data-index');
+    const newIndex = dropTarget.getAttribute('data-index');
+
+    try {
+        await bluOSPlayer.moveTrack(oldIndex, newIndex);
+        await refreshPlaylist();
+    } catch (error) {
+        console.error('Error moving track:', error);
+    }
+}
+
+function handleDragEnd(e) {
+    if (!isEditMode) return;
+    e.target.classList.remove('dragging');
+    draggedItem = null;
+}
+
+function togglePlaylistEditMode() {
+    isEditMode = !isEditMode;
+    const playlistItems = document.querySelectorAll('.playlist-item');
+    document.querySelectorAll('.delete-track');
+    playlistItems.forEach((item) => {
+        if (isEditMode) {
+            enableDragAndDrop(item);
+            item.querySelector('.delete-track').style.display = 'inline';
+        } else {
+            disableDragAndDrop(item);
+            item.querySelector('.delete-track').style.display = 'none';
+        }
+    });
+
+    document.getElementById('editPlaylist').classList.toggle('active');
 }
 
 async function updatePlaylist(playlist) {
@@ -192,30 +349,100 @@ async function updatePlaylist(playlist) {
 
     const songs = playlistXmlDoc.getElementsByTagName('song');
     Array.from(songs).forEach((song, index) => {
-        const title = song.getElementsByTagName('title')[0].textContent;
-        const artist = song.getElementsByTagName('art')[0].textContent;
-        const songId = song.getAttribute('id')?.toString();
+        const songId = song.getAttribute('id');
 
-        const li = document.createElement('li');
-        const link = document.createElement('a');
-        li.className = 'playlist-item';
-        link.className = 'playlist-link';
-        link.href = '#';
-        link.textContent = `${title} by ${artist}`;
-        link.dataset.index = songId || index;
+        const listItem = document.createElement('div');
+        listItem.className = 'playlist-item';
+        listItem.setAttribute('data-index', songId); // Using actual song ID
+        listItem.setAttribute('draggable', 'true');
 
-        link.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await bluOSPlayer.play(songId);
-            await updateStatus();
-        });
+        // Create main content container
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'playlist-content';
 
-        li.appendChild(link);
-        playlistTracks.appendChild(li);
+        // Add track number
+        const trackNum = document.createElement('span');
+        trackNum.className = 'track-number';
+        trackNum.textContent = `${index + 1}. `;
+
+        // Add title
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'track-title';
+        titleSpan.textContent = song.getElementsByTagName('title')[0]?.textContent || 'Unknown';
+
+        // Add artist
+        const artistSpan = document.createElement('span');
+        artistSpan.className = 'track-artist';
+        artistSpan.textContent = ' by ' + song.getElementsByTagName('art')[0]?.textContent || '';
+
+        contentDiv.appendChild(trackNum);
+        contentDiv.appendChild(titleSpan);
+        contentDiv.appendChild(artistSpan);
+
+        // Add delete button (hidden by default)
+        const deleteButton = document.createElement('button');
+        deleteButton.className = 'delete-track';
+        deleteButton.style.display = 'none';
+        deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+        deleteButton.onclick = async (e) => {
+            e.stopPropagation();
+            try {
+                await bluOSPlayer.deleteTrack(songId);
+                await refreshPlaylist();
+            } catch (error) {
+                console.error('Error deleting track:', error);
+            }
+        };
+
+        listItem.appendChild(contentDiv);
+        listItem.appendChild(deleteButton);
+
+        // Add click handler for playing tracks
+        listItem.onclick = () => bluOSPlayer.play(songId);
+
+        // Add drag and drop handlers when in edit mode
+        listItem.addEventListener('dragstart', handleDragStart);
+        listItem.addEventListener('dragover', handleDragOver);
+        listItem.addEventListener('drop', handleDrop);
+        listItem.addEventListener('dragend', handleDragEnd);
+
+        // Inside updatePlaylist function, where you add other event listeners
+        listItem.addEventListener('touchstart', handleTouchStart, { passive: false });
+        listItem.addEventListener('touchmove', handleTouchMove, { passive: false });
+        listItem.addEventListener('touchend', handleTouchEnd);
+
+
+        playlistTracks.appendChild(listItem);
+    });
+
+    // Update drag states based on edit mode
+    updatePlaylistEditState();
+}
+
+function updatePlaylistEditState() {
+    const playlistItems = document.querySelectorAll('.playlist-item');
+    playlistItems.forEach(item => {
+        if (isEditMode) {
+            item.draggable = true;
+            item.classList.add('draggable');
+            item.querySelector('.delete-track').style.display = 'inline';
+        } else {
+            item.draggable = false;
+            item.classList.remove('draggable');
+            item.querySelector('.delete-track').style.display = 'none';
+        }
     });
 }
 
-async function updateSeekSlider() {
+async function refreshPlaylist() {
+    const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
+    const playlistXmlDoc = await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11);
+    if (playlistXmlDoc) {
+        await updatePlaylist(playlistXmlDoc);
+    }
+}
+
+async function updateSeekSlider(updateAllSliders = true) {
     const currentTime = bluOSPlayer.seekLocation;
     const totalTime = bluOSPlayer.trackLength;
     const canSeek = bluOSPlayer.canSeekTrack;
@@ -227,13 +454,15 @@ async function updateSeekSlider() {
     currentTimeSpan.textContent = formatTime(currentTime);
     totalTimeSpan.textContent = formatTime(totalTime);
     dummyAudio.currentTime = currentTime;
+    if (updateAllSliders)
+        stripCurrentTime.textContent = formatTime(currentTime);
 }
 
 function startSeekInterval() {
     clearInterval(seekInterval);
     seekInterval = setInterval(async () => {
         bluOSPlayer.seekLocation += 1;
-        updateSeekSlider().then(r => {
+        updateSeekSlider().then(() => {
             if (bluOSPlayer.seekLocation >= bluOSPlayer.trackLength) {
                 updateStatus();
             }
@@ -248,7 +477,7 @@ function stopSeekInterval() {
 function updateMediaSession(getUpdate= true, setActionHandlers = false) {
     if ('mediaSession' in navigator) {
         if (getUpdate) {
-            bluOSPlayer.getStatus().then(r => {
+            bluOSPlayer.getStatus().then(() => {
             }).catch(console.error);
         }
         
@@ -320,12 +549,6 @@ function updatePlaybackState(state) {
         if (["playing", "paused", "none"].includes(state)) {
             navigator.mediaSession.playbackState = state;
             bluOSPlayer.playState = state;
-            /*
-            if (["playing", "paused"].includes(state))
-                "paused" === state ?
-                    dummyAudio.pause() :
-                    dummyAudio.play().then(r => { console.error('Could not start dummy audio') });
-            */
         } else {
             console.error('Invalid playback state:', state);
         }
@@ -347,6 +570,11 @@ document.getElementById('getStatus').addEventListener('click', updateStatus);
 
 document.getElementById('getSyncStatus').addEventListener('click', () => bluOSPlayer.sendCmd('SyncStatus'));
 document.getElementById('reboot').addEventListener('click', () => bluOSPlayer.reboot());
+
+// Add control strip button listeners
+document.getElementById('strip-play').addEventListener('click', togglePlayPause);
+document.getElementById('strip-back').addEventListener('click', backTrack);
+document.getElementById('strip-skip').addEventListener('click', skipTrack);
 
 darkModeToggle.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
@@ -390,8 +618,10 @@ bluOsPlaylistRefresh.addEventListener('click', async () => {
     await updatePlaylist(await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11));
 });
 
+bluOsPlaylistEdit.addEventListener('click', togglePlaylistEditMode);
+
 bluOsShuffleToggle.addEventListener('change', () => {
-    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(r => {}).catch(console.error);
+    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(() => {}).catch(console.error);
 });
 
 seekSlider.addEventListener('input', async (event) => {
@@ -402,6 +632,92 @@ seekSlider.addEventListener('input', async (event) => {
         console.error('Error seeking track:', error);
     }
 });
+
+// Toggle between volume and playback controls
+stripToggleSeek.addEventListener('click', () => {
+    stripButtons.classList.toggle('hidden');
+    stripVolume.classList.toggle('active');
+    stripToggleSeek.querySelector('i').classList.toggle('fa-volume-up');
+    stripToggleSeek.querySelector('i').classList.toggle('fa-music');
+});
+
+// Sync volume controls
+stripVolumeSlider.addEventListener('input', () => {
+    const value = stripVolumeSlider.value;
+    stripVolumeValue.textContent = value;
+    changeVolumeElements(value, true);
+});
+
+stripToggleVolume.addEventListener('click', () => {
+    const isVolumeActive = stripVolume.classList.contains('active');
+
+    // Reset all controls first
+    stripVolume.classList.remove('active');
+    stripSeek.classList.remove('active');
+    stripButtons.classList.remove('hidden');
+    stripToggleSeek.hidden = stripToggleSeek.hidden ? true : false;
+
+    if (!isVolumeActive) {
+        // Show volume controls only
+        stripVolume.classList.add('active');
+        stripButtons.classList.add('hidden');
+    }
+
+    // Update icons
+    stripToggleVolume.querySelector('i').classList.toggle('fa-volume-up');
+    stripToggleVolume.querySelector('i').classList.toggle('fa-music');
+    stripToggleSeek.querySelector('i').className = 'fas fa-clock';
+});
+
+stripToggleSeek.addEventListener('click', () => {
+    const isSeekActive = stripSeek.classList.contains('active');
+
+    // Reset all controls first
+    stripVolume.classList.remove('active');
+    stripSeek.classList.remove('active');
+    stripButtons.classList.remove('hidden');
+    stripToggleVolume.hidden = stripToggleVolume.hidden ? false : true;
+
+    if (!isSeekActive) {
+        // Show seek controls only
+        stripSeek.classList.add('active');
+        stripButtons.classList.add('hidden');
+    }
+
+    // Update icons
+    stripToggleSeek.querySelector('i').classList.toggle('fa-clock');
+    stripToggleSeek.querySelector('i').classList.toggle('fa-music');
+    stripToggleVolume.querySelector('i').className = 'fas fa-volume-up';
+});
+
+// Add volume display update
+stripVolumeSlider.addEventListener('input', () => {
+    const value = stripVolumeSlider.value;
+    stripVolumeValue.textContent = value;
+    bluOSVolumeSlider.value = value;
+    bluOSVolumeText.value = value;
+    bluOSPlayer.setVolume(value);
+});
+
+// Add continuous seek update
+stripSeekSlider.addEventListener('input', (event) => {
+    const seekTime = parseInt(event.target.value);
+    stripCurrentTime.textContent = formatTime(seekTime);
+});
+
+// Add seek completion handler
+stripSeekSlider.addEventListener('change', async (event) => {
+    const seekTime = parseInt(event.target.value);
+    try {
+        await bluOSPlayer.seek(seekTime);
+        dummyAudio.currentTime = seekTime;
+        await updateSeekSlider();
+    } catch (error) {
+        console.error('Error seeking track:', error);
+    }
+});
+
+stripToggle.addEventListener('click', () => controlStrip.style.visibility = controlStrip.style.visibility.length === 0 ? 'hidden' : '' ) ;
 
 document.addEventListener('keydown', (event) => {
     clearTimeout(debounceTimeout);

@@ -21,3 +21,52 @@
     text-decoration: underline;
     background-color: rgba(0, 0, 0, 0.05);
 }
+
+.playlist-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    margin: 4px 0;
+    background: #f5f5f5;
+    border-radius: 4px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    border-bottom: 1px solid #eee;
+    list-style: none;
+}
+
+.playlist-item.draggable {
+    cursor: move;
+    cursor: grab;
+}
+
+.playlist-item.dragging {
+    opacity: 0.5;
+    background: #eee;
+    cursor: grabbing;
+}
+
+.delete-track {
+    display: none;
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.delete-track:hover {
+    color: #c82333;
+}
+
+.playlist-item {
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.drag-over {
+    border-top: 2px solid #007bff;
+}

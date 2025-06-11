@@ -7,12 +7,17 @@
     "server",
     "client/https-proxy"
   ],
-   "scripts": {
-     "client": "npm run client --workspace client",
-     "proxy": "npm run proxy --workspace client/https-proxy",
-     "start-server": "concurrently \"npm run client --workspace client\" \"npm run proxy --workspace client/https-proxy\""
-   },
-    "dependencies": {
-      "concurrently": "^9.1.2"
-    }
+  "scripts": {
+    "client": "npm run client --workspace client",
+    "proxy": "npm run proxy --workspace client/https-proxy",
+    "start-server": "concurrently \"npm run client --workspace client\" \"npm run proxy --workspace client/https-proxy\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ado24/NAD-C338-Controller.git"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "nad-c338-controller-app": "file:"
+  }
 }
