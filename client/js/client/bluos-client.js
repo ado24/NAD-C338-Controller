@@ -145,7 +145,7 @@ function pauseTrack() {
     try {
         bluOSPlayer.pause()
             .then(() => dummyAudio.pause())
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaybackState("paused"))
             .catch(console.error);
