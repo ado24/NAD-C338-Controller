@@ -32,7 +32,8 @@ const seekSlider = document.getElementById('seek');
 const currentTimeSpan = document.getElementById('currentTime');
 const totalTimeSpan = document.getElementById('totalTime');
 
-const stripToggle = document.getElementById('strip-toggle');
+const stripToggle = document.getElementById('control-strip-toggle');
+const controlStrip = document.getElementById('control-strip');
 const stripButtons = document.querySelector('.control-strip-buttons');
 const stripVolume = document.querySelector('.control-strip-volume');
 const stripVolumeSlider = document.getElementById('strip-volume');
@@ -157,7 +158,7 @@ function stopTrack() {
     try {
 
         bluOSPlayer.stop()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaybackState('none'))
             .then(() => {
@@ -181,7 +182,7 @@ function togglePlayPause() {
 function skipTrack() {
     try {
         bluOSPlayer.skip()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .then(() => updatePlaylist())
             .catch(console.error);
@@ -194,7 +195,7 @@ function skipTrack() {
 function backTrack() {
     try {
         bluOSPlayer.back()
-            .then(r => stopSeekInterval())
+            .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .catch(console.error);
         updateMediaSession();
@@ -315,9 +316,8 @@ function handleDragEnd(e) {
 function togglePlaylistEditMode() {
     isEditMode = !isEditMode;
     const playlistItems = document.querySelectorAll('.playlist-item');
-    const deleteButtons = document.querySelectorAll('.delete-track');
-
-    playlistItems.forEach((item, index) => {
+    document.querySelectorAll('.delete-track');
+    playlistItems.forEach((item) => {
         if (isEditMode) {
             enableDragAndDrop(item);
             item.querySelector('.delete-track').style.display = 'inline';
@@ -462,7 +462,7 @@ function startSeekInterval() {
     clearInterval(seekInterval);
     seekInterval = setInterval(async () => {
         bluOSPlayer.seekLocation += 1;
-        updateSeekSlider().then(r => {
+        updateSeekSlider().then(() => {
             if (bluOSPlayer.seekLocation >= bluOSPlayer.trackLength) {
                 updateStatus();
             }
@@ -477,7 +477,7 @@ function stopSeekInterval() {
 function updateMediaSession(getUpdate= true, setActionHandlers = false) {
     if ('mediaSession' in navigator) {
         if (getUpdate) {
-            bluOSPlayer.getStatus().then(r => {
+            bluOSPlayer.getStatus().then(() => {
             }).catch(console.error);
         }
         
@@ -621,7 +621,7 @@ bluOsPlaylistRefresh.addEventListener('click', async () => {
 bluOsPlaylistEdit.addEventListener('click', togglePlaylistEditMode);
 
 bluOsShuffleToggle.addEventListener('change', () => {
-    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(r => {}).catch(console.error);
+    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(() => {}).catch(console.error);
 });
 
 seekSlider.addEventListener('input', async (event) => {
@@ -716,6 +716,8 @@ stripSeekSlider.addEventListener('change', async (event) => {
         console.error('Error seeking track:', error);
     }
 });
+
+stripToggle.addEventListener('click', () => controlStrip.style.visibility = controlStrip.style.visibility.length === 0 ? 'hidden' : '' ) ;
 
 document.addEventListener('keydown', (event) => {
     clearTimeout(debounceTimeout);

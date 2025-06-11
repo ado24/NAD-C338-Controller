@@ -97,7 +97,10 @@
 
     <!-- BluOS Control -->
     <h1>BluOS Control</h1>
-    <button id="toggleBluOsControls">Toggle<br>BluOS Controls</button>
+    <div>
+        <button id="toggleBluOsControls">Toggle<br>BluOS Controls</button>
+        <button id="control-strip-toggle">Toggle<br>Control Strip</button>
+    </div>
     <div id="bluOs-control-group">
         <div class="control-group" id="bluOS-play-group">
             <label for="play">Play Controls</label>
@@ -156,7 +159,7 @@
         </div>
     </div>
 
-    <div class="control-strip">
+    <div id="control-strip" class="control-strip">
         <div class="control-strip-content">
             <div class="control-strip-info">
                 <div id="control-strip-info-container" class="track-info-scroll" data-text="Not Playing">

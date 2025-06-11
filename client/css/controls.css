@@ -33,7 +33,7 @@
     display: none;
 }
 
-#darkModeToggle {
+#darkModeToggle, #control-strip-toggle {
     position: relative;
     right: -170px;
 }
