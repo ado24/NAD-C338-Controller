@@ -11,7 +11,6 @@ const endpointKeyPath = process.env.SERVER_KEY_PATH;
 const endpointCertPath = process.env.SERVER_CERT_PATH;
 const proxyPort = process.env.PROXY_PORT;
 
-// Create a proxy server
 const proxy = httpProxy.createProxyServer({
     target: `http://${endpointIp}:${endpointPort}`,
     changeOrigin: true,
@@ -19,14 +18,21 @@ const proxy = httpProxy.createProxyServer({
     secure: false
 });
 
-// Create an HTTPS server
 const httpsOptions = {
     key: fs.readFileSync(endpointKeyPath),
     cert: fs.readFileSync(endpointCertPath)
 };
 
-// Listen for the proxyRes event to handle 301 redirects for Tidal images coming from BluOs
+// Cache settings based on content type
+const cacheSettings = {
+    images: 'public, max-age=86400', // 24 hours for images
+    audio: 'no-cache', // No caching for audio
+    status: 'no-store', // No storing for status updates
+    default: 'public, max-age=3600' // 1 hour default
+};
+
 proxy.on('proxyRes', (proxyRes, req, res) => {
+    // Handle redirects
     if (proxyRes.statusCode === 301 || proxyRes.statusCode === 302) {
         const location = proxyRes.headers.location;
         if (location.toString().startsWith("http://resources.tidal.com/")) {
@@ -34,7 +40,21 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
                 'Location': location.replace('http://', 'https://')
             });
             res.end();
+            return;
         }
+    }
+
+    // Add cache control headers
+    const contentType = proxyRes.headers['content-type'] || '';
+
+    if (contentType.includes('image')) {
+        res.setHeader('Cache-Control', cacheSettings.images);
+    } else if (contentType.includes('audio')) {
+        res.setHeader('Cache-Control', cacheSettings.audio);
+    } else if (req.url.includes('Status') || req.url.includes('SyncStatus')) {
+        res.setHeader('Cache-Control', cacheSettings.status);
+    } else {
+        res.setHeader('Cache-Control', cacheSettings.default);
     }
 });
 
