@@ -162,25 +162,25 @@ bassUnsetButton.addEventListener('click', () => nad.unsetBass());
 
 bassToggle.addEventListener('change', () => {
     if (bassToggle.checked) {
-        nad.setBass().then(r => {}).catch(console.error);
+        nad.setBass().then(() => {}).catch(console.error);
     } else {
-        nad.unsetBass().then(r => {}).catch(console.error);
+        nad.unsetBass().then(() => {}).catch(console.error);
     }
 });
 
 autoSenseToggle.addEventListener('change', () => {
     if (autoSenseToggle.checked) {
-        nad.setAutoSense().then(r => {}).catch(console.error);
+        nad.setAutoSense().then(() => {}).catch(console.error);
     } else {
-        nad.unsetAutoSense().then(r => {}).catch(console.error);
+        nad.unsetAutoSense().then(() => {}).catch(console.error);
     }
 });
 
 autoStandbyToggle.addEventListener('change', () => {
     if (autoStandbyToggle.checked) {
-        nad.setAutoStandby().then(r => {}).catch(console.error);
+        nad.setAutoStandby().then(() => {}).catch(console.error);
     } else {
-        nad.unsetAutoStandby().then(r => {}).catch(console.error);
+        nad.unsetAutoStandby().then(() => {}).catch(console.error);
     }
 });
 
