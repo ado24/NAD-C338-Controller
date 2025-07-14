@@ -32,7 +32,7 @@ const autoStandbyToggle = document.getElementById("autoStandbyToggle");
 const autoSenseToggle = document.getElementById("autoSenseToggle");
 
 
-const timer = document.getElementById("timer");
+//const timer = document.getElementById("timer");
 const refreshButton = document.getElementById("refresh");
 const nadControls = document.getElementById("toggleNadControls");
 
@@ -147,13 +147,13 @@ sourceSelect.addEventListener('change', () => nad.setSource(sourceSelect.value))
 brightnessSlider.addEventListener('input', () => {
     brightnessValue.textContent = brightnessSlider.value;
     brightnessText.value = brightnessSlider.value;
-    nad.setBrightness(brightnessSlider.value).then(r => {}).catch(console.error);
+    nad.setBrightness(brightnessSlider.value).then(() => {}).catch(console.error);
 });
 
 brightnessText.addEventListener('input', () => {
     brightnessSlider.value = brightnessText.value;
     brightnessValue.textContent = brightnessText.value;
-    nad.setBrightness(brightnessText.value).then(r => {}).catch(console.error);
+    nad.setBrightness(brightnessText.value).then(() => {}).catch(console.error);
 });
 
 bassSetButton.addEventListener('click', () => nad.setBass());
