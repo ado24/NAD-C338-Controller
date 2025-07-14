@@ -32,7 +32,7 @@ const autoStandbyToggle = document.getElementById("autoStandbyToggle");
 const autoSenseToggle = document.getElementById("autoSenseToggle");
 
 
-const timer = document.getElementById("timer");
+//const timer = document.getElementById("timer");
 const refreshButton = document.getElementById("refresh");
 const nadControls = document.getElementById("toggleNadControls");
 
@@ -133,13 +133,13 @@ unmuteButton.addEventListener('click', () => nad.unMute());
 volumeSlider.addEventListener('input', () => {
     volumeValue.textContent = volumeSlider.value;
     volumeText.value = volumeSlider.value;
-    nad.setVolume(volumeSlider.value).then(r => {}).catch(console.error);
+    nad.setVolume(volumeSlider.value).then(() => {}).catch(console.error);
 });
 
 volumeText.addEventListener('input', () => {
     volumeSlider.value = volumeText.value;
     volumeValue.textContent = volumeText.value;
-    nad.setVolume(volumeText.value).then(r => {}).catch(console.error);
+    nad.setVolume(volumeText.value).then(() => {}).catch(console.error);
 });
 
 sourceSelect.addEventListener('change', () => nad.setSource(sourceSelect.value));
@@ -147,13 +147,13 @@ sourceSelect.addEventListener('change', () => nad.setSource(sourceSelect.value))
 brightnessSlider.addEventListener('input', () => {
     brightnessValue.textContent = brightnessSlider.value;
     brightnessText.value = brightnessSlider.value;
-    nad.setBrightness(brightnessSlider.value).then(r => {}).catch(console.error);
+    nad.setBrightness(brightnessSlider.value).then(() => {}).catch(console.error);
 });
 
 brightnessText.addEventListener('input', () => {
     brightnessSlider.value = brightnessText.value;
     brightnessValue.textContent = brightnessText.value;
-    nad.setBrightness(brightnessText.value).then(r => {}).catch(console.error);
+    nad.setBrightness(brightnessText.value).then(() => {}).catch(console.error);
 });
 
 bassSetButton.addEventListener('click', () => nad.setBass());

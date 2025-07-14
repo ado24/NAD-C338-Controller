@@ -2,11 +2,12 @@ import { BluOSPlayer } from "../model/BluOSPlayer.js";
 
 const bluOsIp = "10.0.0.4";
 const bluOsPort = 3030;
-const updateInterval = 2750;
+const blusOsUpdateInterval = 35; // Update interval for BluOS player status
+const updateInterval = 35000;
 const seekUpdateInterval = 1000;
 const volumeIncrement = 2;
 
-const bluOSPlayer = new BluOSPlayer(bluOsIp, bluOsPort);
+const bluOSPlayer = new BluOSPlayer(bluOsIp, bluOsPort, "https", blusOsUpdateInterval);
 
 // Create a dummy audio element
 const dummyAudio = new Audio();
@@ -97,7 +98,7 @@ async function updateStatus(shouldUpdateMediaSession = true) {
         bluOSVolumeText.value = volume;
         bluOSVolumeValue.textContent = volume;
 
-        bluOsShuffleToggle.checked = await bluOSPlayer.getShuffle();
+        bluOsShuffleToggle.checked = await bluOSPlayer.getShuffle(true);
 
         await updatePlaylist();
 
@@ -186,7 +187,7 @@ function skipTrack() {
             .then(() => updateStatus())
             .then(() => updatePlaylist())
             .catch(console.error);
-        updateMediaSession();
+        updateMediaSession(true);
     } catch (error) {
         console.error("Error skipping:", error);
     }
@@ -198,7 +199,7 @@ function backTrack() {
             .then(() => stopSeekInterval())
             .then(() => updateStatus())
             .catch(console.error);
-        updateMediaSession();
+        updateMediaSession(true);
     } catch (error) {
         console.error("Error going back:", error);
     }
@@ -477,8 +478,7 @@ function stopSeekInterval() {
 function updateMediaSession(getUpdate= true, setActionHandlers = false) {
     if ('mediaSession' in navigator) {
         if (getUpdate) {
-            bluOSPlayer.getStatus().then(() => {
-            }).catch(console.error);
+            bluOSPlayer.getStatus().then(() => {}).catch(console.error);
         }
         
         navigator.mediaSession.metadata = new MediaMetadata({
@@ -748,6 +748,10 @@ document.addEventListener('keydown', (event) => {
     }, 200);
 });
 
-updateMediaSession(true, true);
+updateMediaSession(false, true);
 updatePlaybackState(bluOSPlayer.playState);
-setInterval(updateStatus, updateInterval);
+setInterval(updateStatus, updateInterval, false);
+// Initial status update
+await updateStatus(true).then(() => {
+    updateMediaSession(true, false);
+}).catch(console.error);

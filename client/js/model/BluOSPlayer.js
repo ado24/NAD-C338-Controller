@@ -1,7 +1,7 @@
 import { AudioPlayer } from "./interface/AudioPlayer.js";
 
 export class BluOSPlayer extends AudioPlayer {
-    constructor(ip, port = 11000, protocol = "https") {
+    constructor(ip, port = 11000, protocol = "https", pollingInterval = 15) {
         super(ip, port, protocol);
         this.title = null;
         this.artist = null;
@@ -16,6 +16,11 @@ export class BluOSPlayer extends AudioPlayer {
         this.trackLength = 0;
         this.canSeekTrack = true;
         this.isEditMode = false;
+        //Long polling variables
+        this.lastEtag = null;
+        this.isPolling = false;
+        this.minPollInterval = pollingInterval; // defaults to 15 second minimum between polls
+        this.lastPollTime = 0;
     }
 
     getStorageKey() {
@@ -35,8 +40,22 @@ export class BluOSPlayer extends AudioPlayer {
     }
 
     async getStatus() {
-        const status = await this.sendCmd('Status');
+        const now = Date.now();
+        const timeSinceLastPoll = now - this.lastPollTime;
+
+        if (this.isPolling && timeSinceLastPoll < this.minPollInterval) {
+            return; // Prevent polling too frequently
+        }
+
+        this.lastPollTime = now;
+        this.isPolling = true;
+
         try {
+            const endpoint = this.lastEtag
+                ? `Status?timeout=${this.minPollInterval}&etag=${this.lastEtag}`
+                : 'Status';
+
+            const status = await this.sendCmd(endpoint);
             if (status) {
                 this.title = status.getElementsByTagName('title1')[0]?.textContent || 'N/A';
                 this.artist = status.getElementsByTagName('artist')[0]?.textContent || 'N/A';
@@ -51,6 +70,8 @@ export class BluOSPlayer extends AudioPlayer {
                 this.trackLength = parseInt(status.getElementsByTagName('totlen')[0]?.textContent) || 0;
                 this.playState = status.getElementsByTagName('state')[0]?.textContent || 'none';
                 this.playState = this.isPlaying() ? 'playing' : 'paused';
+                // Store new etag for next poll
+                this.lastEtag = status.documentElement.getAttribute('etag');
 
 
                 this.streamFormat = status.getElementsByTagName('streamFormat')[0]?.textContent || 'N/A';
@@ -64,6 +85,8 @@ export class BluOSPlayer extends AudioPlayer {
             }
         } catch (e) {
             console.error('Error getting status:', e);
+        } finally {
+            this.isPolling = false;
         }
 
     }
@@ -105,7 +128,11 @@ export class BluOSPlayer extends AudioPlayer {
         this.seekLocation = position;
     }
 
-    async getShuffle() {
+    async getShuffle(useState = true) {
+        if (useState) {
+            return this.shuffle;
+        }
+
         const status = await this.sendCmd('Status');
         if (status) {
             const shuffle = status.getElementsByTagName('shuffle')[0]?.textContent;
