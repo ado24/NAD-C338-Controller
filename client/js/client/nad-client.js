@@ -133,13 +133,13 @@ unmuteButton.addEventListener('click', () => nad.unMute());
 volumeSlider.addEventListener('input', () => {
     volumeValue.textContent = volumeSlider.value;
     volumeText.value = volumeSlider.value;
-    nad.setVolume(volumeSlider.value).then(r => {}).catch(console.error);
+    nad.setVolume(volumeSlider.value).then(() => {}).catch(console.error);
 });
 
 volumeText.addEventListener('input', () => {
     volumeSlider.value = volumeText.value;
     volumeValue.textContent = volumeText.value;
-    nad.setVolume(volumeText.value).then(r => {}).catch(console.error);
+    nad.setVolume(volumeText.value).then(() => {}).catch(console.error);
 });
 
 sourceSelect.addEventListener('change', () => nad.setSource(sourceSelect.value));
