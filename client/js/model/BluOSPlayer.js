@@ -29,7 +29,13 @@ export class BluOSPlayer extends AudioPlayer {
 
     async sendCmd(cmd) {
         try {
-            const response = await fetch(`${this.protocol}://${this.ip}:${this.port}/${cmd}`);
+            const response = await fetch(`${this.protocol}://${this.ip}:${this.port}/${cmd}`, {
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+                }
+            });
             const textResponse = await response.text();
             const parser = new DOMParser();
             return parser.parseFromString(textResponse, "application/xml");
