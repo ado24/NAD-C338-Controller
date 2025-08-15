@@ -687,7 +687,7 @@ stripToggleVolume.addEventListener('click', () => {
     stripVolume.classList.remove('active');
     stripSeek.classList.remove('active');
     stripButtons.classList.remove('hidden');
-    stripToggleSeek.hidden = stripToggleSeek.hidden ? true : false;
+    stripToggleSeek.hidden = stripToggleSeek.hidden;
 
     if (!isVolumeActive) {
         // Show volume controls only
@@ -708,7 +708,7 @@ stripToggleSeek.addEventListener('click', () => {
     stripVolume.classList.remove('active');
     stripSeek.classList.remove('active');
     stripButtons.classList.remove('hidden');
-    stripToggleVolume.hidden = stripToggleVolume.hidden ? false : true;
+    stripToggleVolume.hidden = !stripToggleVolume.hidden;
 
     if (!isSeekActive) {
         // Show seek controls only
