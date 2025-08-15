@@ -59,7 +59,28 @@ proxy.on('proxyRes', (proxyRes, req, res) => {
 });
 
 const server = https.createServer(httpsOptions, (req, res) => {
+    // Set CORS headers before proxying
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.writeHead(204);
+        res.end();
+        return;
+    }
+
     proxy.web(req, res);
+});
+
+// Add error handling for the proxy
+proxy.on('error', (err, req, res) => {
+    console.error('Proxy error:', err);
+    res.writeHead(500, {
+        'Content-Type': 'text/plain'
+    });
+    res.end('Proxy error');
 });
 
 server.listen(proxyPort, () => {
