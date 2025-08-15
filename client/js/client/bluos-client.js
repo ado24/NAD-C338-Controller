@@ -228,6 +228,43 @@ function decreaseVolume(increment = 5) {
     changeVolumeElements(newVolume, true);
 }
 
+// Drag and Drop functionality for playlist items
+// Handle immediate playlist updates
+async function handlePlaylistEdit(action, songId = null, newIndex = null) {
+    try {
+        // Stop any existing intervals temporarily
+        const wasPlaying = bluOSPlayer.isPlaying();
+        if (wasPlaying) {
+            stopSeekInterval();
+        }
+
+        // Perform the edit action
+        switch (action) {
+            case 'delete':
+                await bluOSPlayer.deleteTrack(songId);
+                break;
+            case 'move':
+                await bluOSPlayer.moveTrack(songId, newIndex);
+                break;
+        }
+
+        // Immediately update the playlist view
+        const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
+        const playlistXmlDoc = await bluOSPlayer.fetchPlaylist(
+            currentTrackIndex + 1,
+            currentTrackIndex + 11);
+
+        await updatePlaylist(playlistXmlDoc);
+
+        // Resume normal operation
+        if (wasPlaying) {
+            startSeekInterval();
+        }
+    } catch (error) {
+        console.error('Error handling playlist edit:', error);
+    }
+}
+
 function enableDragAndDrop(element) {
     element.draggable = true;
     element.classList.add('draggable');
@@ -300,12 +337,7 @@ async function handleDrop(e) {
     const oldIndex = draggedItem.getAttribute('data-index');
     const newIndex = dropTarget.getAttribute('data-index');
 
-    try {
-        await bluOSPlayer.moveTrack(oldIndex, newIndex);
-        await refreshPlaylist();
-    } catch (error) {
-        console.error('Error moving track:', error);
-    }
+    await handlePlaylistEdit('move', oldIndex, newIndex);
 }
 
 function handleDragEnd(e) {
@@ -748,6 +780,8 @@ document.addEventListener('keydown', (event) => {
     }, 200);
 });
 
+// Initialize the dummy audio element
+dummyAudio.addEventListener('canplaythrough', () => {});
 updateMediaSession(false, true);
 updatePlaybackState(bluOSPlayer.playState);
 setInterval(updateStatus, updateInterval, false);
