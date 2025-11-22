@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preset Settings Flyout</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 5px; }
+    </style>
+</head>
+<body>
+    <h2>Manage Presets</h2>
+    <div>
+        <h3>Save Preset</h3>
+        <label for="presetName">Preset Name:</label>
+        <input type="text" id="presetName" placeholder="Enter preset name"><br>
+        <button onclick="savePreset()">Save</button>
+    </div>
+    <div>
+        <h3>Load Preset</h3>
+        <select id="presetSelect">
+            <option>Select a preset</option>
+            <!-- Options will be populated here -->
+        </select>
+        <button onclick="loadPreset()">Load</button>
+    </div>
+    <div>
+        <h3>Manage Presets</h3>
+        <button onclick="managePresets()">Manage Presets</button>
+    </div>
+
+    <script>
+        function savePreset() {
+            const presetName = document.getElementById('presetName').value;
+            // Add functionality to save preset
+            console.log('Saved preset:', presetName);
+        }
+
+        function loadPreset() {
+            const presetSelect = document.getElementById('presetSelect');
+            const selectedPreset = presetSelect.value;
+            // Add functionality to load preset
+            console.log('Loaded preset:', selectedPreset);
+        }
+
+        function managePresets() {
+            // Add functionality to manage presets
+            console.log('Manage presets clicked');
+        }
+    </script>
+</body>
+</html>
