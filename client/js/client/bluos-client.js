@@ -2,12 +2,13 @@ import { BluOSPlayer } from "../model/BluOSPlayer.js";
 
 const bluOsIp = "10.0.0.4";
 const bluOsPort = 3030;
-const blusOsUpdateInterval = 35; // Update interval for BluOS player status
-const updateInterval = 35000;
+const blusOsUpdateInterval = 8; // Update interval for BluOS player status
+const updateInterval = 8000;
 const seekUpdateInterval = 1000;
 const volumeIncrement = 2;
+let playlistWindowSize = 15; // Default playlist size
 
-const bluOSPlayer = new BluOSPlayer(bluOsIp, bluOsPort, "https", blusOsUpdateInterval);
+const bluOSPlayer = new BluOSPlayer(bluOsIp, bluOsPort, "https", blusOsUpdateInterval, playlistWindowSize);
 
 // Create a dummy audio element
 const dummyAudio = new Audio();
@@ -21,10 +22,8 @@ dummyAudio.setAttribute('webkit-playsinline', '');
 const bluOSVolumeSlider = document.getElementById("bluOSVolume");
 const bluOSVolumeText = document.getElementById("bluOSVolumeText");
 const bluOSVolumeValue = document.getElementById("bluOSVolumeValue");
-const bluOsShuffleToggle = document.getElementById("shuffleToggle");
 
 const darkModeToggle = document.getElementById("darkModeToggle")
-const bluOsControls = document.getElementById("toggleBluOsControls");
 const bluOsPlaylist = document.getElementById("togglePlaylist");
 const bluOsPlaylistRefresh = document.getElementById("refreshPlaylist");
 const bluOsPlaylistEdit = document.getElementById("editPlaylist");
@@ -48,6 +47,11 @@ const stripSeek = document.querySelector('.control-strip-seek');
 const stripSeekSlider = document.getElementById('strip-seek');
 const stripCurrentTime = document.getElementById('strip-current-time');
 const stripTotalTime = document.getElementById('strip-total-time');
+
+const bluosHeader = document.getElementById('bluos-collapsible-header');
+const bluosContent = document.getElementById('bluOs-control-group');
+const mainPlayPauseBtn = document.getElementById('play-pause');
+const mainShuffleBtn = document.getElementById('shuffle');
 
 let debounceTimeout;
 let seekInterval;
@@ -98,7 +102,7 @@ async function updateStatus(shouldUpdateMediaSession = true) {
         bluOSVolumeText.value = volume;
         bluOSVolumeValue.textContent = volume;
 
-        bluOsShuffleToggle.checked = await bluOSPlayer.getShuffle(true);
+        updateShuffleButtons(await bluOSPlayer.getShuffle(true));
 
         await updatePlaylist();
 
@@ -111,11 +115,8 @@ async function updateStatus(shouldUpdateMediaSession = true) {
         stripVolumeSlider.value = bluOSPlayer.volume;
         stripVolumeValue.textContent = bluOSPlayer.volume;
 
-        // Update play button icon
-        stripPlay.querySelector('i').classList.remove('fa-play', 'fa-pause');
-        stripPlay.querySelector('i').classList.add(
-            bluOSPlayer.isPlaying() ? 'fa-pause' : 'fa-play'
-        );
+        // Update play/pause buttons
+        updateAllPlayPauseButtons(bluOSPlayer.isPlaying());
 
         // Update seek slider in control strip
         stripSeekSlider.max = bluOSPlayer.trackLength;
@@ -128,6 +129,23 @@ async function updateStatus(shouldUpdateMediaSession = true) {
     } catch (error) {
         console.error("Error updating status:", error);
     }
+}
+
+function updateAllPlayPauseButtons(isPlaying) {
+    const mainPlayPauseIcon = mainPlayPauseBtn.querySelector('i');
+    const stripPlayIcon = stripPlay.querySelector('i');
+
+    [mainPlayPauseIcon, stripPlayIcon].forEach(icon => {
+        if (icon) {
+            icon.classList.remove('fa-play', 'fa-pause');
+            icon.classList.add(isPlaying ? 'fa-pause' : 'fa-play');
+        }
+    });
+}
+
+function updateShuffleButtons(isShuffled) {
+    mainShuffleBtn.classList.toggle('active', isShuffled);
+    document.getElementById('strip-toggle-shuffle').classList.toggle('active', isShuffled);
 }
 
 function playTrack() {
@@ -178,6 +196,14 @@ function togglePlayPause() {
     } else {
         playTrack();
     }
+}
+
+async function toggleShuffle() {
+    const currentState = await bluOSPlayer.getShuffle(true);
+    const newState = !currentState;
+    updateShuffleButtons(newState);
+    await bluOSPlayer.setShuffle(newState);
+    await refreshPlaylist(playlistWindowSize);
 }
 
 function skipTrack() {
@@ -249,12 +275,7 @@ async function handlePlaylistEdit(action, songId = null, newIndex = null) {
         }
 
         // Immediately update the playlist view
-        const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
-        const playlistXmlDoc = await bluOSPlayer.fetchPlaylist(
-            currentTrackIndex + 1,
-            currentTrackIndex + 11);
-
-        await updatePlaylist(playlistXmlDoc);
+        await refreshPlaylist(playlistWindowSize);
 
         // Resume normal operation
         if (wasPlaying) {
@@ -317,7 +338,7 @@ function handleTouchEnd(e) {
         const newIndex = dropTarget.getAttribute('data-index');
 
         bluOSPlayer.moveTrack(oldIndex, newIndex)
-            .then(() => refreshPlaylist())
+            .then(() => refreshPlaylist(playlistWindowSize))
             .catch(error => console.error('Error moving track:', error));
     }
 
@@ -349,14 +370,16 @@ function handleDragEnd(e) {
 function togglePlaylistEditMode() {
     isEditMode = !isEditMode;
     const playlistItems = document.querySelectorAll('.playlist-item');
-    document.querySelectorAll('.delete-track');
     playlistItems.forEach((item) => {
+        const deleteBtn = item.querySelector('.delete-track');
         if (isEditMode) {
             enableDragAndDrop(item);
-            item.querySelector('.delete-track').style.display = 'inline';
+            if (deleteBtn)
+                deleteBtn.style.display = 'inline';
         } else {
             disableDragAndDrop(item);
-            item.querySelector('.delete-track').style.display = 'none';
+            if (deleteBtn)
+                deleteBtn.style.display = 'none';
         }
     });
 
@@ -367,7 +390,7 @@ async function updatePlaylist(playlist) {
     const playlistTracks = document.getElementById('playlistTracks');
     playlistTracks.innerHTML = '';
 
-    const playlistXmlDoc = playlist || await bluOSPlayer.playlist;
+    const playlistXmlDoc = playlist || await bluOSPlayer. playlist;
     if (!playlistXmlDoc) {
         console.log('No playlist to update');
         return;
@@ -421,7 +444,7 @@ async function updatePlaylist(playlist) {
             e.stopPropagation();
             try {
                 await bluOSPlayer.deleteTrack(songId);
-                await refreshPlaylist();
+                await refreshPlaylist(playlistWindowSize);
             } catch (error) {
                 console.error('Error deleting track:', error);
             }
@@ -458,20 +481,23 @@ function updatePlaylistEditState() {
         if (isEditMode) {
             item.draggable = true;
             item.classList.add('draggable');
-            item.querySelector('.delete-track').style.display = 'inline';
+            const deleteBtn = item.querySelector('.delete-track');
+            if(deleteBtn) deleteBtn.style.display = 'inline';
         } else {
             item.draggable = false;
             item.classList.remove('draggable');
-            item.querySelector('.delete-track').style.display = 'none';
+            const deleteBtn = item.querySelector('.delete-track');
+            if(deleteBtn) deleteBtn.style.display = 'none';
         }
     });
 }
 
-async function refreshPlaylist() {
+async function refreshPlaylist(windowSize = 11) {
     const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
-    const playlistXmlDoc = await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11);
+    const playlistXmlDoc = await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + windowSize);
     if (playlistXmlDoc) {
         await updatePlaylist(playlistXmlDoc);
+        bluOSPlayer.playlistLocation = currentTrackIndex + 1;
     }
 }
 
@@ -593,8 +619,15 @@ function formatTime(seconds) {
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-document.getElementById('play').addEventListener('click', playTrack);
-document.getElementById('pause').addEventListener('click', pauseTrack);
+function toggleBluOsSection(e) {
+    if (e.target.closest('button')) {
+        return;
+    }
+    bluosContent.classList.toggle('collapsed');
+    bluosHeader.classList.toggle('collapsed');
+}
+
+mainPlayPauseBtn.addEventListener('click', togglePlayPause);
 document.getElementById('skip').addEventListener('click', skipTrack);
 document.getElementById('back').addEventListener('click', backTrack);
 document.getElementById('stop').addEventListener('click', stopTrack);
@@ -624,19 +657,13 @@ bluOSVolumeText.addEventListener('input', () => {
     bluOSPlayer.setVolume(bluOSVolumeText.value);
 });
 
-bluOsControls.addEventListener('click', () => {
-    const bluOsControls = document.getElementById('bluOs-control-group');
-    bluOsControls.style.display = bluOsControls.style.display === 'none' ? 'block' : 'none';
-});
+bluosHeader.addEventListener('click', toggleBluOsSection);
+bluosHeader.addEventListener('touchend', toggleBluOsSection);
 
 bluOsPlaylist.addEventListener('click', async () => {
     const playlist = document.getElementById('playlist');
     if (playlist.style.display === 'none') {
-        const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
-        const playlistXmlDoc = await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11)
-        if (playlistXmlDoc) {
-            await updatePlaylist(playlistXmlDoc);
-        }
+        await refreshPlaylist(playlistWindowSize);
         playlist.style.display = 'block';
         document.getElementById('togglePlaylist').textContent = 'Hide Playlist';
     } else {
@@ -645,16 +672,11 @@ bluOsPlaylist.addEventListener('click', async () => {
     }
 });
 
-bluOsPlaylistRefresh.addEventListener('click', async () => {
-    const currentTrackIndex = parseInt(bluOSPlayer.playlistLocation, 10);
-    await updatePlaylist(await bluOSPlayer.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11));
-});
-
+bluOsPlaylistRefresh.addEventListener('click', refreshPlaylist);
 bluOsPlaylistEdit.addEventListener('click', togglePlaylistEditMode);
 
-bluOsShuffleToggle.addEventListener('change', () => {
-    bluOSPlayer.setShuffle(bluOsShuffleToggle.checked).then(() => {}).catch(console.error);
-});
+mainShuffleBtn.addEventListener('click', toggleShuffle);
+document.getElementById('strip-toggle-shuffle').addEventListener('click', toggleShuffle);
 
 seekSlider.addEventListener('input', async (event) => {
     const seekTime = event.target.value;

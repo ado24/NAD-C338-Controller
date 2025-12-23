@@ -31,10 +31,9 @@ const brightnessValue = document.getElementById("brightnessValue");
 const autoStandbyToggle = document.getElementById("autoStandbyToggle");
 const autoSenseToggle = document.getElementById("autoSenseToggle");
 
-
-//const timer = document.getElementById("timer");
 const refreshButton = document.getElementById("refresh");
-const nadControls = document.getElementById("toggleNadControls");
+const nadHeader = document.getElementById('nad-collapsible-header');
+const nadContent = document.getElementById('nad-control-group');
 
 //Functions
 
@@ -108,6 +107,14 @@ timerWorker.onmessage = async function(event) {
         }
     }
 };
+
+function toggleNadSection(e) {
+    if (e.target.closest('button')) {
+        return;
+    }
+    nadContent.classList.toggle('collapsed');
+    nadHeader.classList.toggle('collapsed');
+}
 
 //Adding Event Listeners
 
@@ -185,10 +192,9 @@ autoStandbyToggle.addEventListener('change', () => {
 });
 
 refreshButton.addEventListener('click', refreshStatus);
-nadControls.addEventListener('click', () => {
-    const nadControls = document.getElementById('nad-control-group');
-    nadControls.style.display = nadControls.style.display === 'none' ? 'block' : 'none';
-});
+
+nadHeader.addEventListener('click', toggleNadSection);
+nadHeader.addEventListener('touchend', toggleNadSection);
 
 
 //Setting refresh polling interval

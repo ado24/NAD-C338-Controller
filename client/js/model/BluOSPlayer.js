@@ -1,7 +1,7 @@
 import { AudioPlayer } from "./interface/AudioPlayer.js";
 
 export class BluOSPlayer extends AudioPlayer {
-    constructor(ip, port = 11000, protocol = "https", pollingInterval = 15) {
+    constructor(ip, port = 11000, protocol = "https", pollingInterval = 15, playlistWindow = 10) {
         super(ip, port, protocol);
         this.title = null;
         this.artist = null;
@@ -12,6 +12,7 @@ export class BluOSPlayer extends AudioPlayer {
         this.shuffle = false;
         this._playlist = [];
         this.playlistLocation = 0;
+        this.playlistWindow = playlistWindow;
         this.seekLocation = 0;
         this.trackLength = 0;
         this.canSeekTrack = true;
@@ -161,6 +162,10 @@ export class BluOSPlayer extends AudioPlayer {
         return this._playlist;
     }
 
+    async fetchPlaylistWindow(windowSize = this.playlistWindow){
+        await this.fetchPlaylist(this.playlistLocation, this.playlistLocation + windowSize);
+    }
+
     // Getters and setters
 
     get uri() {
@@ -170,7 +175,7 @@ export class BluOSPlayer extends AudioPlayer {
     get playlist() {
         if (!this._playlist.length) {
             const currentTrackIndex = parseInt(this.playlistLocation, 10);
-            this.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + 11).then(() => {}).catch(console.error);
+            this.fetchPlaylist(currentTrackIndex + 1, currentTrackIndex + this.playlistWindow).then(() => {}).catch(console.error);
         }
         return this._playlist;
     }
