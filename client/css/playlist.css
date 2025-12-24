@@ -1,39 +1,107 @@
 .playlist-item {
     display: flex;
     align-items: center;
-    padding: 10px;
-    margin: 5px 0;
+    padding: 14px 16px;
+    margin: 8px 0;
     background-color: var(--card-background-color);
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    transition: background-color 0.3s, transform 0.2s;
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.playlist-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    opacity: 0;
+    transition: opacity var(--transition-normal);
 }
 
 .playlist-item:hover {
     background-color: var(--hover-background-color);
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: var(--box-shadow-hover);
+    border-color: var(--primary-light);
+}
+
+.playlist-item:hover::before {
+    opacity: 1;
 }
 
 .playlist-item .track-art {
-    width: 50px;
-    height: 50px;
-    border-radius: 4px;
-    margin-right: 15px;
+    width: 56px;
+    height: 56px;
+    border-radius: 6px;
+    margin-right: 16px;
+    flex-shrink: 0;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+    transition: transform var(--transition-normal);
+}
+
+.playlist-item:hover .track-art {
+    transform: scale(1.05);
 }
 
 .playlist-item .track-info {
     flex-grow: 1;
+    min-width: 0;
 }
 
 .playlist-item .track-title {
-    font-weight: bold;
+    font-weight: 600;
     display: block;
+    margin-bottom: 4px;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .playlist-item .track-artist {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.playlist-item .track-meta {
+    display: none;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.playlist-item:hover .track-meta {
+    display: block;
+}
+
+.playlist-item .quality-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
+
+.playlist-item:hover .quality-badge {
+    opacity: 1;
 }
 
 .playlist-item .delete-track {
@@ -42,23 +110,39 @@
     color: var(--secondary-color);
     font-size: 1.2rem;
     cursor: pointer;
-    transition: color 0.2s;
-    display: none; /* Hidden by default */
+    padding: 6px;
+    border-radius: 4px;
+    transition: all var(--transition-fast);
+    display: none;
+    flex-shrink: 0;
+    margin-left: 8px;
+}
+
+.playlist-item:hover .delete-track {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .playlist-item .delete-track:hover {
     color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    transform: scale(1.15);
 }
 
 .playlist-item.draggable {
-    cursor: move;
     cursor: grab;
 }
 
+.playlist-item.draggable:active {
+    cursor: grabbing;
+}
+
 .playlist-item.dragging {
-    opacity: 0.5;
+    opacity: 0.6;
     background: var(--hover-background-color);
     cursor: grabbing;
+    transform: scale(0.98);
 }
 
 .drag-over {

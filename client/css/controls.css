@@ -45,29 +45,71 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 16px;
+    margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .play-controls button {
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 54px;
+    height: 54px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.2rem;
-    background-color: var(--secondary-color);
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, var(--secondary-color), #8a90a6);
+    border: none;
+    color: white;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    box-shadow: 0 3px 8px rgba(108, 117, 125, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.play-controls button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width var(--transition-normal), height var(--transition-normal);
+}
+
+.play-controls button:hover::before {
+    width: 100%;
+    height: 100%;
+}
+
+.play-controls button:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.play-controls button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.2);
 }
 
 .play-controls button#play-pause {
-    background-color: var(--primary-color);
-    width: 60px;
-    height: 60px;
-    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+    width: 72px;
+    height: 72px;
+    font-size: 1.8rem;
+    box-shadow: 0 4px 12px rgba(0, 86, 179, 0.3);
 }
 
-.play-controls button#shuffle.active {
-    color: var(--primary-color);
-    background-color: var(--hover-background-color);
+.play-controls button#play-pause:hover {
+    box-shadow: var(--box-shadow-hover);
+}
+
+.play-controls button#shuffle.active,
+.play-controls button#repeat.active {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
 }

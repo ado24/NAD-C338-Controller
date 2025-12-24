@@ -4,28 +4,45 @@
     left: 0;
     right: 0;
     background-color: var(--card-background-color);
-    padding: 10px 15px;
+    padding: 12px 20px;
     box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
     border-top: 1px solid var(--border-color);
-    height: 70px; /* Slightly reduced height */
+    height: 75px;
 }
 
 .control-strip-content {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
     max-width: 1200px;
     width: 100%;
 }
 
 .control-strip-info {
-    flex: 1 1 auto; /* Allow shrinking and growing */
-    min-width: 150px; /* Prevent it from being crushed */
+    flex: 1 1 auto;
+    min-width: 150px;
     overflow: hidden;
+}
+
+.control-strip-info .track-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 4px;
+    color: var(--text-color);
+}
+
+.control-strip-info .track-artist {
+    font-size: 0.85rem;
+    color: var(--secondary-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .control-strip-controls {
@@ -33,27 +50,27 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    flex: 0 0 auto; /* Don't allow growing, only shrink if needed */
+    flex: 0 0 auto;
     height: 100%;
 }
 
 .control-strip-buttons,
 .control-strip-volume,
 .control-strip-seek {
-    display: none; /* Hidden by default */
+    display: none;
     align-items: center;
-    gap: 10px;
-    width: 220px; /* A more constrained width */
+    gap: 12px;
+    width: 220px;
 }
 
 .control-strip-buttons {
-    display: flex; /* Show buttons by default */
+    display: flex;
     justify-content: center;
 }
 
 .control-strip-volume.active,
 .control-strip-seek.active {
-    display: flex; /* Show when active */
+    display: flex;
 }
 
 .control-strip-buttons.hidden {
@@ -62,9 +79,9 @@
 
 .control-strip-toggles {
     display: flex;
-    gap: 8px;
-	padding-left: 10px;
-	padding-right: 8px;
+    gap: 10px;
+    padding-left: 12px;
+    padding-right: 10px;
 }
 
 .control-strip-buttons button,
@@ -72,19 +89,25 @@
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 1.1rem; /* Slightly smaller icons */
+    font-size: 1.2rem;
     cursor: pointer;
-    padding: 5px;
-    transition: color 0.2s, transform 0.2s;
+    padding: 8px;
+    transition: color var(--transition-fast), transform var(--transition-fast);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .control-strip-buttons button:hover,
 .control-strip-toggles button:hover {
     color: var(--primary-color);
-    transform: scale(1.1);
+    transform: scale(1.15);
+    background-color: var(--hover-background-color);
 }
 
-#strip-toggle-shuffle.active {
+#strip-toggle-shuffle.active,
+#strip-toggle-repeat.active {
     color: var(--primary-color);
 }
 
@@ -94,9 +117,10 @@
 }
 
 #strip-volume-value {
-    min-width: 25px;
+    min-width: 28px;
     text-align: right;
     font-size: 0.9rem;
+    font-weight: 500;
 }
 
 .seek-times {
