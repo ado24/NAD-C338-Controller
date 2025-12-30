@@ -1,40 +1,53 @@
-.trackArtImg {
-    width: 200px;
-    height: 200px;
-}
-
-.playlist-item {
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
-    list-style: none;
-}
-
-.playlist-link {
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
-    display: block;
-    padding: 4px 8px;
-}
-
-.playlist-link:hover {
-    text-decoration: underline;
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
 .playlist-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 8px;
-    margin: 4px 0;
-    background: #f5f5f5;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: var(--card-background-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: background-color 0.3s, transform 0.2s;
+    cursor: pointer;
+}
+
+.playlist-item:hover {
+    background-color: var(--hover-background-color);
+    transform: translateY(-2px);
+}
+
+.playlist-item .track-art {
+    width: 50px;
+    height: 50px;
     border-radius: 4px;
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-    border-bottom: 1px solid #eee;
-    list-style: none;
+    margin-right: 15px;
+}
+
+.playlist-item .track-info {
+    flex-grow: 1;
+}
+
+.playlist-item .track-title {
+    font-weight: bold;
+    display: block;
+}
+
+.playlist-item .track-artist {
+    font-size: 0.9rem;
+    color: var(--secondary-color);
+}
+
+.playlist-item .delete-track {
+    background: none;
+    border: none;
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: none; /* Hidden by default */
+}
+
+.playlist-item .delete-track:hover {
+    color: #dc3545;
 }
 
 .playlist-item.draggable {
@@ -44,29 +57,14 @@
 
 .playlist-item.dragging {
     opacity: 0.5;
-    background: #eee;
+    background: var(--hover-background-color);
     cursor: grabbing;
 }
 
-.delete-track {
-    display: none;
-    background: none;
-    border: none;
-    color: #dc3545;
-    cursor: pointer;
-    padding: 4px 8px;
-}
-
-.delete-track:hover {
-    color: #c82333;
-}
-
-.playlist-item {
-    touch-action: none;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
 .drag-over {
-    border-top: 2px solid #007bff;
+    border-top: 2px solid var(--primary-color);
+}
+
+#playlistTracks {
+    padding: 0;
 }

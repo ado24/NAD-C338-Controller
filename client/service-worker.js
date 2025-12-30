@@ -34,6 +34,7 @@ self.addEventListener('install', event => {
     );
 });
 
+// Activate service worker and clean up old caches.
 self.addEventListener('activate', event => {
     event.waitUntil(
         Promise.all([
@@ -74,4 +75,46 @@ self.addEventListener('activate', event => {
       })
     ))
   );
+});
+
+
+// Refresh cache periodically (e.g., every 24 hours)
+self.addEventListener('periodicsync', event => {
+    if (event.tag === 'refresh-cache') {
+        event.waitUntil(
+            caches.open(CACHE_NAME).then(cache => {
+                return Promise.all(
+                    urlsToCache.map(url => {
+                        return fetch(url).then(response => {
+                            if (response.ok) {
+                                return cache.put(url, response);
+                            }
+                        }).catch(error => {
+                            console.error(`Failed to refresh cache for: ${url}`, error);
+                        });
+                    })
+                );
+            })
+        );
+    }
+});
+
+// Request periodic sync registration
+self.addEventListener('activate', event => {
+    event.waitUntil(
+        self.registration.periodicSync.register('refresh-cache', {
+            minInterval: 24 * 60 * 60 * 1000 // 24 hours
+        }).catch(error => {
+            console.error('Periodic sync registration failed:', error);
+        })
+    );
+});
+
+// Listen for messages from the client
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'CLEAR_CACHE') {
+        caches.delete(CACHE_NAME).then(() => {
+            console.log('Cache cleared');
+        });
+    }
 });

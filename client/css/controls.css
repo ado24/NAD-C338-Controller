@@ -6,23 +6,6 @@
     width: 35px;
 }
 
-.nad-control-group {
-    display: flex;
-    justify-content: space-between;
-    padding-top: 10px;
-}
-
-.toggle-controls {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-}
-
-.toggle-controls:hover {
-    opacity: 0.8;
-}
-
 .bassButtons {
     display: none;
 }
@@ -31,11 +14,6 @@
     width: 122px;
     height: 50px;
     display: none;
-}
-
-#darkModeToggle, #control-strip-toggle {
-    position: relative;
-    right: -170px;
 }
 
 .timer-controls {
@@ -61,4 +39,35 @@
 .time-spinner:focus {
     outline: none;
     border-color: var(--accent-color);
+}
+
+.play-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.play-controls button {
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    background-color: var(--secondary-color);
+}
+
+.play-controls button#play-pause {
+    background-color: var(--primary-color);
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+}
+
+.play-controls button#shuffle.active {
+    color: var(--primary-color);
+    background-color: var(--hover-background-color);
 }
